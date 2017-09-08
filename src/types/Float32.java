@@ -1,17 +1,25 @@
 package types;
 
+import com.sun.org.apache.bcel.internal.generic.FLOAD;
+
 public class Float32 extends Floating{
-    public static final Float32 Zero = new Float32(0);
+    public static final Float32 Zero = new Float32(0),
+                                NegativeZero = new Float32(0x80000000),
+                                NaN = new Float32(0x7F800000);
 
     public final int bits;
     private Float32(int bits){
         this.bits = bits;
     }
 
-    private int exponent(){
+    public int exponent(){
         return ((bits >>> 23) & 0xFF)-127;
     }
 
+    public static Float32 fromSignMagnitude(boolean sign, int mag){
+        assert mag > 0 : "Magnitude cannot be less than zero";
+        return fromInteger((sign?-1:1)*mag);
+    }
     /**
      * @param num An integer to be converted to
      * @return

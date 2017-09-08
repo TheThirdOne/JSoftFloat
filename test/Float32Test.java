@@ -15,5 +15,6 @@ public class Float32Test {
         assertEquals(0xbf800000, Float32.fromInteger(-1).bits);
         assertEquals(0x44000000, Float32.fromInteger(512).bits);
         assertEquals(0x4e5693a4, Float32.fromInteger(900000000).bits);
+        // TODO: boundary size test
     }
 }

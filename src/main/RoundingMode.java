@@ -1,6 +1,8 @@
+package main;
+
 public enum RoundingMode {
     even,
-    odd,
+    away,
     min,
     max,
     zero
