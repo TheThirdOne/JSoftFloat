@@ -1,3 +1,5 @@
+import main.Environment;
+import operations.Conversions;
 import org.junit.jupiter.api.Test;
 import types.Float32;
 
@@ -16,5 +18,11 @@ public class Float32Test {
         assertEquals(0x44000000, Float32.fromInteger(512).bits);
         assertEquals(0x4e5693a4, Float32.fromInteger(900000000).bits);
         // TODO: boundary size test
+    }
+    @Test
+    public void toInteger(){
+        assertEquals(0, Conversions.convertToIntegral(Float32.Zero, new Environment()));
+        assertEquals(1, Conversions.convertToIntegral(Float32.fromInteger(1), new Environment()));
+        assertEquals(-1, Conversions.convertToIntegral(Float32.fromInteger(-1), new Environment()));
     }
 }

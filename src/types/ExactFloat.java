@@ -28,10 +28,10 @@ public class ExactFloat extends Floating implements Comparable<ExactFloat> {
             exponent = 0;
             significand = BigInteger.ZERO;
         }else if(f.isNormal()){
-            exponent = f.exponent()+23;
+            exponent = f.exponent()-23;
             significand = BigInteger.valueOf((f.bits & 0x007FFFFF)+0x00800000); // Add back the implied one
         }else if(f.isSubnormal()){
-            exponent = f.exponent()+23;
+            exponent = f.exponent()-23;
             significand = BigInteger.valueOf(f.bits & 0x007FFFFF);
         }else{
             assert false : "This should not be reachable";
@@ -52,12 +52,51 @@ public class ExactFloat extends Floating implements Comparable<ExactFloat> {
             env.flags.add(Flags.underflow);
             env.flags.add(Flags.inexact);
             return sign?Float32.NegativeZero:Float32.Zero;
-            // TODO: handle
         }else if(normalizedExponent < -127){ // TODO: check off by one
             // Subnormal
-            // TODO: handle
+            ExactFloat f = normalize();
+            if(f.exponent >= -150){
+                assert f.significand.bitLength() <= 23 : "Its actually normal";
+                return new Float32(f.sign,-127, f.significand.shiftLeft(-127-f.exponent).intValueExact());
+            }
 
-            return Float32.Zero;
+            env.flags.add(Flags.inexact);
+            int bitsToRound = -150 - f.exponent;
+            BigInteger mainBits = f.significand.shiftRight(bitsToRound).shiftLeft(bitsToRound);
+            BigInteger roundedBits = f.significand.subtract(mainBits);
+
+            Float32 towardsZero = new Float32(sign, -127, f.significand.shiftRight(bitsToRound).intValueExact());
+            Float32 awayZero;
+            BigInteger upBits = f.significand.shiftRight(bitsToRound).add(BigInteger.valueOf(1));
+            if(upBits.testBit(0) || upBits.bitLength() < 23){
+                awayZero = new Float32(sign,-127,upBits.intValueExact());
+            }else{
+                awayZero = new Float32(sign, -126,upBits.intValueExact()&0x007FFFFF);
+            }
+
+            switch (env.mode){
+                case zero:
+                    return towardsZero;
+                case max:
+                case min:
+                    if(sign != (env.mode == RoundingMode.max)){
+                        return awayZero;
+                    }else{
+                        return towardsZero;
+                    }
+            }
+
+            if(roundedBits.equals(BigInteger.ONE.shiftLeft(bitsToRound-1))){
+                if(env.mode == RoundingMode.away || (awayZero.bits & 1) == 0){
+                    return awayZero;
+                }else{
+                    return towardsZero;
+                }
+            }else if(roundedBits.compareTo(BigInteger.ONE.shiftLeft(bitsToRound-1)) > 0 ){
+                return awayZero;
+            }else {
+                return towardsZero;
+            }
         }else if(normalizedExponent > 128){ // TODO: check off by one
             // Section 7.4
             env.flags.add(Flags.overflow);
@@ -67,7 +106,7 @@ public class ExactFloat extends Floating implements Comparable<ExactFloat> {
                     return new Float32(sign, 254, -1); // Largest finite number
                 case min:
                 case max:
-                    if(sign != (env.mode == RoundingMode.min)){
+                    if(sign != (env.mode == RoundingMode.max)){
                         return sign?Float32.NegativeInfinity:Float32.Infinity;
                     }else{
                         return new Float32(sign, 254, -1); // Largest finite number
@@ -79,10 +118,49 @@ public class ExactFloat extends Floating implements Comparable<ExactFloat> {
             assert false : "Not reachable";
             return sign?Float32.NegativeInfinity:Float32.Infinity;
         }else {
-            // normal
-            // TODO: handle
+            ExactFloat f = normalize();
+            if(f.significand.bitLength() <= 24){
+                // No rounding needed
+                return new Float32(sign, f.exponent+23, f.significand.intValueExact() & 0x007FFFFF);
+            }
+            env.flags.add(Flags.inexact);
+            int bitsToRound = f.significand.bitLength() - 24;
+            BigInteger mainBits = f.significand.shiftRight(bitsToRound).shiftLeft(bitsToRound);
+            BigInteger roundedBits = f.significand.subtract(mainBits);
+            Float32 awayZero;
+            BigInteger upBits = f.significand.shiftRight(bitsToRound).add(BigInteger.valueOf(1));
 
-            return Float32.Zero;
+            Float32 towardsZero = new Float32(sign, f.exponent+23+bitsToRound, f.significand.shiftRight(bitsToRound).intValueExact()& 0x007FFFFF);
+            if(upBits.testBit(0) || upBits.bitLength() < 24){
+                awayZero = new Float32(sign,f.exponent+23+bitsToRound,upBits.intValueExact()& 0x007FFFFF);
+            }else{
+                awayZero = new Float32(sign, f.exponent+24+bitsToRound, upBits.shiftRight(1).intValueExact()&0x007FFFFF);
+            }
+
+            switch (env.mode){
+                case zero:
+                    return towardsZero;
+                case max:
+                case min:
+                    if(sign != (env.mode == RoundingMode.max)){
+                        return awayZero;
+                    }else{
+                        return towardsZero;
+                    }
+            }
+
+            if(roundedBits.equals(BigInteger.ONE.shiftLeft(bitsToRound-1))){
+                if(env.mode == RoundingMode.away || (awayZero.bits & 1) == 0){
+                    return awayZero;
+                }else{
+                    return towardsZero;
+                }
+            }else if(roundedBits.compareTo(BigInteger.ONE.shiftLeft(bitsToRound-1)) > 0 ){
+                return awayZero;
+            }else {
+                return towardsZero;
+            }
+
         }
     }
     public ExactFloat add(ExactFloat other) {
@@ -164,6 +242,19 @@ public class ExactFloat extends Floating implements Comparable<ExactFloat> {
         }else{
             return zeroRounded;
         }
+    }
+
+    public int toIntegral(Environment env){
+        if(isZero())return 0;
+
+        ExactFloat f = roundToIntegral(env);
+                f = f.normalize();
+
+        assert f.exponent >= 0 : "There can't be any fractions at this point";
+        if(f.significand.bitLength() + f.exponent > 31){
+            return f.sign?Integer.MIN_VALUE:Integer.MAX_VALUE;
+        }
+        return (sign?-1:1)*f.significand.shiftLeft(f.exponent).intValueExact();
     }
 
     @Override
