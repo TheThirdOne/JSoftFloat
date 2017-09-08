@@ -1,5 +1,8 @@
 package types;
 
+/**
+ * General classifications that any floating point class needs to provide.
+ */
 public abstract class Floating {
     public abstract boolean isSignMinus();
     public abstract boolean isInfinite();

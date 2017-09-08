@@ -1,12 +1,11 @@
 package operations;
 
 import main.Environment;
-import main.RoundingMode;
 import types.ExactFloat;
 import types.Float32;
 
 /**
- * Created by benjamin on 9/7/17.
+ * Groups conversion operations such as integer to float32, float32 to integer, etc
  */
 public class Conversions {
     public Float32 roundToIntegral(Float32 f, Environment env){

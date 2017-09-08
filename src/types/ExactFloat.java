@@ -3,8 +3,8 @@ package types;
 
 import java.math.BigInteger;
 import main.Environment;
+import main.Flags;
 import main.RoundingMode;
-import sun.security.pkcs.SigningCertificateInfo;
 
 /**
  * A helper type to generalize floating point exact operations. This helps to reduce the extra rounding code into just
@@ -14,7 +14,7 @@ import sun.security.pkcs.SigningCertificateInfo;
  * Square Root and Division cannot really use this because they cannot avoid the precision issue. They have to stop
  * computing digits once they get past the maximum length of the significand.
  */
-public class ExactFloat implements Comparable<ExactFloat>{
+public class ExactFloat extends Floating implements Comparable<ExactFloat> {
     // Value = (-1)^sign * significand * 2^exponent
     private boolean sign;
     private int exponent;
@@ -22,7 +22,7 @@ public class ExactFloat implements Comparable<ExactFloat>{
     public ExactFloat(Float32 f){
         assert !f.isInfinite() : "Infinity is not exact";
         assert !f.isNaN() : "NaNs are not exact";
-        assert !f.isZero(): "Zeros are not exact (-0 vs +0)";
+        assert !f.isZero(): "Zeros should be handled explicitly";
         sign = f.isSignMinus();
         if(f.isZero()){
             exponent = 0;
@@ -43,21 +43,47 @@ public class ExactFloat implements Comparable<ExactFloat>{
         significand = sig;
     }
     public Float32 toFloat32(Environment env){
-        if(significand.equals(BigInteger.ZERO)){
+        if(isZero()){
             return (sign)?Float32.NegativeZero:Float32.Zero;
         }
         int normalizedExponent = exponent + significand.bitLength();
-        if(normalizedExponent < -127){ // TODO: check off by one
-            // Subnormal or underflow to zero
+        if(normalizedExponent < -150){ // TODO: check off by one
+            // Section 7.5
+            env.flags.add(Flags.underflow);
+            env.flags.add(Flags.inexact);
+            return sign?Float32.NegativeZero:Float32.Zero;
             // TODO: handle
+        }else if(normalizedExponent < -127){ // TODO: check off by one
+            // Subnormal
+            // TODO: handle
+
+            return Float32.Zero;
         }else if(normalizedExponent > 128){ // TODO: check off by one
-            // Overflow to infinity
-            // TODO: handle
+            // Section 7.4
+            env.flags.add(Flags.overflow);
+            env.flags.add(Flags.inexact);
+            switch (env.mode){
+                case zero:
+                    return new Float32(sign, 254, -1); // Largest finite number
+                case min:
+                case max:
+                    if(sign != (env.mode == RoundingMode.min)){
+                        return sign?Float32.NegativeInfinity:Float32.Infinity;
+                    }else{
+                        return new Float32(sign, 254, -1); // Largest finite number
+                    }
+                case away:
+                case even:
+                    return sign?Float32.NegativeInfinity:Float32.Infinity;
+            }
+            assert false : "Not reachable";
+            return sign?Float32.NegativeInfinity:Float32.Infinity;
         }else {
             // normal
             // TODO: handle
+
+            return Float32.Zero;
         }
-        return Float32.Zero;
     }
     public ExactFloat add(ExactFloat other) {
         int expoDiff = exponent - other.exponent;
@@ -85,14 +111,24 @@ public class ExactFloat implements Comparable<ExactFloat>{
             }
         }
     }
+
+    public ExactFloat multiply(ExactFloat other){
+        // 0 * x = 0
+        // Sign is the xor of the input signs - Section 6.3
+        if(isZero() || other.isZero()){
+            return new ExactFloat(sign != other.sign, 0, BigInteger.ZERO);
+        }
+        return new ExactFloat(sign != other.sign,exponent+other.exponent, significand.multiply(other.significand));
+    }
+
     public ExactFloat normalize(){
-        if(significand.equals(BigInteger.ZERO))return this;
+        if(isZero())return this;
         return new ExactFloat(sign,exponent+significand.getLowestSetBit(),
                 significand.shiftRight(significand.getLowestSetBit()));
     }
 
     public ExactFloat roundToIntegral(Environment env){
-        if(significand.equals(BigInteger.ZERO))return this;
+        if(isZero())return this;
         ExactFloat f = normalize();
         if(f.exponent >= 0)return f;
 
@@ -132,8 +168,8 @@ public class ExactFloat implements Comparable<ExactFloat>{
 
     @Override
     public int compareTo(ExactFloat other) {
-        if(significand.equals(BigInteger.ZERO)){
-            if(other.significand.equals(BigInteger.ZERO)){
+        if(isZero()){
+            if(other.isZero()){
                 return 0;
             }
             return other.sign?1:-1;
@@ -158,5 +194,43 @@ public class ExactFloat implements Comparable<ExactFloat>{
         return new ExactFloat(false, exponent, significand);
     }
 
-    public class NotExact extends Exception {}
+    @Override
+    public boolean isSignMinus() {
+        return sign;
+    }
+
+    @Override
+    public boolean isInfinite() {
+        return false;
+    }
+
+    @Override
+    public boolean isNormal() {
+        return true; // TODO: does this make sense
+    }
+
+    @Override
+    public boolean isSubnormal() {
+        return false; // TODO: does this make sense
+    }
+
+    @Override
+    public boolean isNaN() {
+        return false;
+    }
+
+    @Override
+    public boolean isSignalling() {
+        return false;
+    }
+
+    @Override
+    public boolean isCanonical() {
+        return true; // TODO: does this make sense
+    }
+
+    @Override
+    public boolean isZero() {
+        return significand.equals(BigInteger.ZERO);
+    }
 }

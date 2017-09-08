@@ -1,5 +1,8 @@
 package main;
 
+/**
+ * Exception flags which can be set in certain conditions
+ */
 public enum Flags {
-    inexact, underflow, overflow, infinite, invalid
+    inexact, underflow, overflow, divByZero, invalid
 }
