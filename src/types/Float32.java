@@ -46,7 +46,12 @@ public class Float32 extends Floating{
     public Float32 negate(){
         return new Float32(bits ^ 0x80000000); // Flip the sign bit
     }
-
+    public Float32 abs() {
+        return new Float32(bits & 0x7FFFFFFF);
+    }
+    public Float32 copySign(Float32 signToTake){
+        return new Float32((bits & 0x7FFFFFFF) | (signToTake.bits & 0x80000000));
+    }
 
     public boolean isSignMinus(){
         return (bits >>> 31) == 1;

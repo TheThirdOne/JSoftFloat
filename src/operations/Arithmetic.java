@@ -76,6 +76,10 @@ public class Arithmetic {
             return Float32.NaN;
         }
 
+        if(a.isZero() ||b.isZero()){
+            return a.isSignMinus() == a.isSignMinus()?Float32.Zero:Float32.NegativeZero;
+        }
+
         return (new ExactFloat(a)).multiply(new ExactFloat(b)).toFloat32(env);
     }
 }
