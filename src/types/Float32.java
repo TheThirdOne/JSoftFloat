@@ -8,7 +8,7 @@ public class Float32 extends Floating{
                                 NegativeZero = new Float32(0x80000000),
                                 NaN = new Float32(0x7F800001),
                                 Infinity = new Float32(0x7F800000),
-                                NegativeInfinity = new Float32(0x7F800000);
+                                NegativeInfinity = new Float32(0xFF800000);
 
     public final int bits;
     public Float32(int bits){
@@ -16,7 +16,7 @@ public class Float32 extends Floating{
     }
 
     public Float32(boolean sign, int exponent, int significand){
-        this(((sign)?0x80000000:0)|((exponent&0xFF) << 23)|(significand&0x007FFFFF));
+        this(((sign)?0x80000000:0)|(((exponent+127)&0xFF) << 23)|(significand&0x007FFFFF));
     }
 
     public int exponent(){

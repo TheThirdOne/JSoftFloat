@@ -121,7 +121,9 @@ public class ExactFloat extends Floating implements Comparable<ExactFloat> {
             ExactFloat f = normalize();
             if(f.significand.bitLength() <= 24){
                 // No rounding needed
-                return new Float32(sign, f.exponent+23, f.significand.intValueExact() & 0x007FFFFF);
+                Float32 a = new Float32(sign, f.exponent+f.significand.bitLength()-1, f.significand.shiftLeft(24-f.significand.bitLength()).intValueExact() & 0x007FFFFF);
+
+                return a;
             }
             env.flags.add(Flags.inexact);
             int bitsToRound = f.significand.bitLength() - 24;
@@ -165,7 +167,7 @@ public class ExactFloat extends Floating implements Comparable<ExactFloat> {
     }
     public ExactFloat add(ExactFloat other) {
         int expoDiff = exponent - other.exponent;
-        int finalExpo = Math.max(exponent,other.exponent);
+        int finalExpo = Math.min(exponent,other.exponent);
 
         if(sign != other.sign){
             int comp = this.abs().compareTo(other.abs());
@@ -176,16 +178,16 @@ public class ExactFloat extends Floating implements Comparable<ExactFloat> {
             }
 
             boolean finalSign = (comp > 0)?sign:other.sign;
-            if(expoDiff > 0){
-                return new ExactFloat(finalSign, finalExpo, significand.subtract(other.significand.shiftLeft(expoDiff)).abs());
+            if(expoDiff < 0){
+                return new ExactFloat(finalSign, finalExpo, significand.subtract(other.significand.shiftLeft(-expoDiff)).abs());
             }else{
-                return new ExactFloat(finalSign, finalExpo, significand.shiftLeft(-expoDiff).subtract(other.significand).abs());
+                return new ExactFloat(finalSign, finalExpo, significand.shiftLeft(expoDiff).subtract(other.significand).abs());
             }
         } else {
-            if(expoDiff > 0){
-                return new ExactFloat(sign, finalExpo, significand.add(other.significand.shiftLeft(expoDiff)).abs());
+            if(expoDiff < 0){
+                return new ExactFloat(sign, finalExpo, significand.add(other.significand.shiftLeft(-expoDiff)).abs());
             }else{
-                return new ExactFloat(sign, finalExpo, significand.shiftLeft(-expoDiff).add(other.significand).abs());
+                return new ExactFloat(sign, finalExpo, significand.shiftLeft(expoDiff).add(other.significand).abs());
             }
         }
     }
@@ -200,7 +202,7 @@ public class ExactFloat extends Floating implements Comparable<ExactFloat> {
     }
 
     public ExactFloat normalize(){
-        if(isZero())return this;
+        if(isZero())return new ExactFloat(sign,0,BigInteger.ZERO);
         return new ExactFloat(sign,exponent+significand.getLowestSetBit(),
                 significand.shiftRight(significand.getLowestSetBit()));
     }
@@ -247,8 +249,7 @@ public class ExactFloat extends Floating implements Comparable<ExactFloat> {
     public int toIntegral(Environment env){
         if(isZero())return 0;
 
-        ExactFloat f = roundToIntegral(env);
-                f = f.normalize();
+        ExactFloat f = roundToIntegral(env).normalize();
 
         assert f.exponent >= 0 : "There can't be any fractions at this point";
         if(f.significand.bitLength() + f.exponent > 31){
