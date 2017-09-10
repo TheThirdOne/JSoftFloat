@@ -32,13 +32,13 @@ public class TestArithmetic {
         assertEquals(-3, subHelper(-1,2));
         assertEquals(1, subHelper(2,1));
 
-        assertEquals(Float32.NaN.bits, Arithmetic.sub(Float32.Infinity,Float32.Infinity, new Environment()).bits);
-        assertEquals(Float32.NaN.bits, Arithmetic.sub(Float32.NaN,Float32.NegativeInfinity, new Environment()).bits);
-        assertEquals(Float32.NaN.bits, Arithmetic.sub(Float32.NaN,Float32.fromInteger(2), new Environment()).bits);
+        assertEquals(Float32.NaN.bits, Arithmetic.subtraction(Float32.Infinity,Float32.Infinity, new Environment()).bits);
+        assertEquals(Float32.NaN.bits, Arithmetic.subtraction(Float32.NaN,Float32.NegativeInfinity, new Environment()).bits);
+        assertEquals(Float32.NaN.bits, Arithmetic.subtraction(Float32.NaN,Float32.fromInteger(2), new Environment()).bits);
     }
 
     private int subHelper(int a, int b){
-        return Conversions.convertToIntegral(Arithmetic.sub(Float32.fromInteger(a),Float32.fromInteger(b), new Environment()),new Environment());
+        return Conversions.convertToIntegral(Arithmetic.subtraction(Float32.fromInteger(a),Float32.fromInteger(b), new Environment()),new Environment());
     }
 
     @Test
@@ -50,6 +50,19 @@ public class TestArithmetic {
         assertEquals(1, multHelper(-1,-1));
     }
     private int multHelper(int a, int b){
-        return Conversions.convertToIntegral(Arithmetic.mult(Float32.fromInteger(a),Float32.fromInteger(b), new Environment()),new Environment());
+        return Conversions.convertToIntegral(Arithmetic.multiplication(Float32.fromInteger(a),Float32.fromInteger(b), new Environment()),new Environment());
+    }
+
+    @Test
+    public void TestDivision(){
+        assertEquals(1, divHelper(1,1));
+        assertEquals(-1, divHelper(1,-1));
+        assertEquals(1, divHelper(-1,-1));
+        assertEquals(20, divHelper(20,1));
+        assertEquals(6, divHelper(12,2));
+        assertEquals(3, divHelper(9,3));
+    }
+    private int divHelper(int a, int b){
+        return Conversions.convertToIntegral(Arithmetic.division(Float32.fromInteger(a),Float32.fromInteger(b), new Environment()),new Environment());
     }
 }

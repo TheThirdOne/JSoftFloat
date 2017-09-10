@@ -53,7 +53,7 @@ public class Arithmetic {
         return out.toFloat32(env);
     }
 
-    public static Float32 sub(Float32 a, Float32 b, Environment env){
+    public static Float32 subtraction(Float32 a, Float32 b, Environment env){
         // TODO: handle signalling correctly
 
         // Section 6.2
@@ -64,7 +64,7 @@ public class Arithmetic {
         return add(a,b.negate(),env);
     }
 
-    public static Float32 mult(Float32 a, Float32 b, Environment env){
+    public static Float32 multiplication(Float32 a, Float32 b, Environment env){
         // TODO: handle signalling correctly
 
         // Section 6.2
@@ -76,10 +76,45 @@ public class Arithmetic {
             return Float32.NaN;
         }
 
-        if(a.isZero() ||b.isZero()){
-            return a.isSignMinus() == a.isSignMinus()?Float32.Zero:Float32.NegativeZero;
+        if(a.isZero() || b.isZero()){
+            return a.isSignMinus() == b.isSignMinus()?Float32.Zero:Float32.NegativeZero;
         }
 
         return (new ExactFloat(a)).multiply(new ExactFloat(b)).toFloat32(env);
+    }
+
+    public static Float32 division(Float32 a, Float32 b, Environment env){
+        // TODO: handle signalling correctly
+
+        // Section 6.2
+        if(a.isNaN()) return a;
+        if(b.isNaN()) return b;
+
+        // Section 7.2
+        if((a.isZero() && b.isZero()) || (a.isInfinite() || b.isInfinite())){
+            env.flags.add(Flags.invalid);
+            return Float32.NaN;
+        }
+
+        // Section 6.1
+        if(a.isInfinite()){
+            return (a.isSignMinus() == b.isSignMinus())?Float32.Infinity:Float32.NegativeInfinity;
+        }
+
+        if(b.isInfinite() || a.isZero()){
+            return (a.isSignMinus() == b.isSignMinus())?Float32.Zero:Float32.NegativeZero;
+        }
+
+        // Section 7.3
+        if(b.isZero()){
+            env.flags.add(Flags.divByZero);
+            return (a.isSignMinus() == b.isSignMinus())?Float32.Infinity:Float32.NegativeInfinity;
+        }
+
+        assert a.isFinite() && b.isFinite() : "Both should definitely be finite by this point";
+
+        // TODO: replace 30 with a better number
+        // TODO: in tie cases round away from zero despite rounding mode unless actually precise
+        return (new ExactFloat(a)).divide(new ExactFloat(b),30).toFloat32(env);
     }
 }

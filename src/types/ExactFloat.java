@@ -201,6 +201,50 @@ public class ExactFloat extends Floating implements Comparable<ExactFloat> {
         return new ExactFloat(sign != other.sign,exponent+other.exponent, significand.multiply(other.significand));
     }
 
+    /**
+     * Divides this number by another
+     *
+     * This method uses simple long division rather than a more sophisticated process to compute a/b. This is mainly
+     * because it needs to be completely correct for a specific amount of bytes to be able to round correctly, and
+     * because exact divisions such as 1/2 will be completely exact. This is not a guarantee with many other methods.
+     *
+     * Many implementation use Newton–Raphson division because it is much faster, but the analysis to guarantee
+     * correct rounding behavior is beyond me. And likly fairly easy to mess up
+     *
+     * @param other the dividend
+     * @param accuracy the number of bits to compute
+     * @return An exact float that equals this/other with the first accuracy bits correct
+     * @author Benjamin Landers
+     */
+    public ExactFloat divide(ExactFloat other, int accuracy){
+        assert accuracy > 0 : "Accuracy must be a positive number";
+        assert !other.isZero() : "Divide by Zero is not valid";
+        ExactFloat a = normalize(), b = other.normalize();
+        BigInteger divisor = a.significand, dividend = b.significand;
+        BigInteger outbits = BigInteger.ZERO;
+
+        // Line up the numbers
+        if(divisor.bitLength() > dividend.bitLength()){
+            dividend = dividend.shiftLeft(divisor.bitLength() - dividend.bitLength());
+        }else{
+            divisor = divisor.shiftLeft(dividend.bitLength() - divisor.bitLength());
+        }
+
+        // Perform long division
+        while (outbits.bitLength() < accuracy){
+            outbits = outbits.shiftLeft(1);
+            if(divisor.compareTo(dividend) >= 0){
+                divisor = divisor.subtract(dividend);
+                outbits = outbits.add(BigInteger.ONE);
+            }
+            divisor = divisor.shiftLeft(1);
+            if(divisor.equals(BigInteger.ZERO)){
+                break;
+            }
+        }
+        return new ExactFloat(a.sign != b.sign, a.exponent - b.exponent, outbits);
+    }
+
     public ExactFloat normalize(){
         if(isZero())return new ExactFloat(sign,0,BigInteger.ZERO);
         return new ExactFloat(sign,exponent+significand.getLowestSetBit(),
