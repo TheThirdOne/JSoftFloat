@@ -47,17 +47,17 @@ public class ExactFloat extends Floating implements Comparable<ExactFloat> {
             return (sign)?Float32.NegativeZero:Float32.Zero;
         }
         int normalizedExponent = exponent + significand.bitLength();
-        if(normalizedExponent < -150){ // TODO: check off by one
+        if(normalizedExponent <= -150){
             // Section 7.5
             env.flags.add(Flags.underflow);
             env.flags.add(Flags.inexact);
             return sign?Float32.NegativeZero:Float32.Zero;
-        }else if(normalizedExponent < -127){ // TODO: check off by one
+        }else if(normalizedExponent <= -127){
             // Subnormal
             ExactFloat f = normalize();
             if(f.exponent >= -150){
                 assert f.significand.bitLength() <= 23 : "Its actually normal";
-                return new Float32(f.sign,-127, f.significand.shiftLeft(-127-f.exponent).intValueExact());
+                return new Float32(f.sign,-127, f.significand.shiftLeft(150+f.exponent).intValueExact());
             }
 
             env.flags.add(Flags.inexact);

@@ -1,6 +1,7 @@
 package operations;
 
 import main.Environment;
+import main.Flags;
 import types.ExactFloat;
 import types.Float32;
 
@@ -26,7 +27,7 @@ public class Conversions {
     public static int convertToIntegral(Float32 f, Environment env){
         // Section 5.9 and 7.2
         if(f.isNaN()){
-            //TODO: signal invalid operation
+            env.flags.add(Flags.invalid);
             return 0;
         }
         if(f.isInfinite()){

@@ -1,10 +1,13 @@
 import main.Environment;
+import main.Flags;
 import operations.Arithmetic;
 import operations.Conversions;
 import org.junit.jupiter.api.Test;
 import types.Float32;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestArithmetic {
     @Test
@@ -55,14 +58,34 @@ public class TestArithmetic {
 
     @Test
     public void TestDivision(){
-        assertEquals(1, divHelper(1,1));
-        assertEquals(-1, divHelper(1,-1));
-        assertEquals(1, divHelper(-1,-1));
-        assertEquals(20, divHelper(20,1));
-        assertEquals(6, divHelper(12,2));
-        assertEquals(3, divHelper(9,3));
+        assertEquals(1, intDivHelper(1,1));
+        assertEquals(-1, intDivHelper(1,-1));
+        assertEquals(1, intDivHelper(-1,-1));
+        assertEquals(20, intDivHelper(20,1));
+        assertEquals(6, intDivHelper(12,2));
+        assertEquals(3, intDivHelper(9,3));
+
+        assertEquals(1, Conversions.convertToIntegral(Arithmetic.multiplication(divHelper(1,2),
+                Float32.fromInteger(2),new Environment()),new Environment()));
+
+        assertEquals(0x3F000000, divHelper(1,2).bits);
+        assertEquals(0x3E800000, divHelper(1,4).bits);
+        assertEquals(0x3F400000, divHelper(3,4).bits);
+
+        assertFalse(inexactDivision(1,1));
+        assertFalse(inexactDivision(1,2));
+        assertFalse(inexactDivision(345,690));
+        assertTrue(inexactDivision(1,3));
     }
-    private int divHelper(int a, int b){
-        return Conversions.convertToIntegral(Arithmetic.division(Float32.fromInteger(a),Float32.fromInteger(b), new Environment()),new Environment());
+    private int intDivHelper(int a, int b){
+        return Conversions.convertToIntegral(divHelper(a,b),new Environment());
+    }
+    private Float32 divHelper(int a, int b){
+        return Arithmetic.division(Float32.fromInteger(a),Float32.fromInteger(b), new Environment());
+    }
+    private boolean inexactDivision(int a, int b){
+        Environment e = new Environment();
+        Arithmetic.division(Float32.fromInteger(a),Float32.fromInteger(b), e);
+        return e.flags.contains(Flags.inexact);
     }
 }
