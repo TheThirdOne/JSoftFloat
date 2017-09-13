@@ -1,5 +1,6 @@
 import main.Environment;
 import main.Flags;
+import main.RoundingMode;
 import operations.Arithmetic;
 import operations.Conversions;
 import org.junit.jupiter.api.Test;
@@ -17,8 +18,18 @@ public class TestArithmetic {
         assertEquals(2, addHelper(0, 2));
 
         assertEquals(Float32.NaN.bits, Arithmetic.add(Float32.Infinity, Float32.NegativeInfinity, new Environment()).bits);
+        assertEquals(Float32.Infinity.bits, Arithmetic.add(Float32.Infinity, Float32.fromInteger(1), new Environment()).bits);
+        assertEquals(Float32.Infinity.bits, Arithmetic.add( Float32.fromInteger(1), Float32.Infinity, new Environment()).bits);
         assertEquals(Float32.NaN.bits, Arithmetic.add(Float32.NaN, Float32.NegativeInfinity, new Environment()).bits);
-        assertEquals(Float32.NaN.bits, Arithmetic.add(Float32.NaN, Float32.fromInteger(2), new Environment()).bits);
+        assertEquals(Float32.NaN.bits, Arithmetic.add(Float32.NaN, Float32.fromInteger(1), new Environment()).bits);
+        assertEquals(Float32.Zero.bits, Arithmetic.add(Float32.Zero, Float32.Zero, new Environment()).bits);
+        assertEquals(Float32.NegativeZero.bits, Arithmetic.add(Float32.NegativeZero, Float32.NegativeZero, new Environment()).bits);
+        assertEquals(Float32.Zero.bits, Arithmetic.add(Float32.Zero, Float32.Zero, new Environment()).bits);
+        assertEquals(Float32.Zero.bits, Arithmetic.add(Float32.Zero, Float32.NegativeZero, new Environment(RoundingMode.zero)).bits);
+        assertEquals(Float32.Zero.bits, Arithmetic.add(Float32.Zero, Float32.NegativeZero, new Environment(RoundingMode.max)).bits);
+        assertEquals(Float32.Zero.bits, Arithmetic.add(Float32.Zero, Float32.NegativeZero, new Environment(RoundingMode.even)).bits);
+        assertEquals(Float32.Zero.bits, Arithmetic.add(Float32.Zero, Float32.NegativeZero, new Environment(RoundingMode.away)).bits);
+        assertEquals(Float32.NegativeZero.bits, Arithmetic.add(Float32.Zero, Float32.NegativeZero, new Environment(RoundingMode.min)).bits);
     }
 
     private int addHelper(int a, int b) {
@@ -34,6 +45,7 @@ public class TestArithmetic {
         assertEquals(1, subHelper(2, 1));
 
         assertEquals(Float32.NaN.bits, Arithmetic.subtraction(Float32.Infinity, Float32.Infinity, new Environment()).bits);
+        assertEquals(Float32.Infinity.bits, Arithmetic.subtraction(Float32.Infinity, Float32.fromInteger(2), new Environment()).bits);
         assertEquals(Float32.NaN.bits, Arithmetic.subtraction(Float32.NaN, Float32.NegativeInfinity, new Environment()).bits);
         assertEquals(Float32.NaN.bits, Arithmetic.subtraction(Float32.NaN, Float32.fromInteger(2), new Environment()).bits);
     }
@@ -49,6 +61,10 @@ public class TestArithmetic {
         assertEquals(4, multHelper(2, 2));
         assertEquals(-1, multHelper(1, -1));
         assertEquals(1, multHelper(-1, -1));
+
+        assertEquals(Float32.Infinity.bits, Arithmetic.multiplication(Float32.Infinity, Float32.Infinity, new Environment()).bits);
+        assertEquals(Float32.NegativeInfinity.bits, Arithmetic.multiplication(Float32.Infinity, Float32.NegativeInfinity, new Environment()).bits);
+        assertEquals(Float32.NaN.bits, Arithmetic.multiplication(Float32.Infinity, Float32.Zero, new Environment()).bits);
     }
 
     private int multHelper(int a, int b) {
@@ -75,6 +91,30 @@ public class TestArithmetic {
         assertFalse(inexactDivision(1, 2));
         assertFalse(inexactDivision(345, 690));
         assertTrue(inexactDivision(1, 3));
+
+        Environment e = new Environment();
+        assertEquals(Float32.NaN.bits, Arithmetic.division(Float32.Zero, Float32.Zero, e).bits);
+        assertEquals(Float32.NaN.bits, Arithmetic.division(Float32.Infinity, Float32.Infinity, e).bits);
+        assertEquals(Float32.NaN.bits, Arithmetic.division(Float32.NegativeInfinity, Float32.Infinity, e).bits);
+        e.flags.contains(Flags.invalid);
+        e.flags.remove(Flags.invalid);
+        assertTrue(e.flags.isEmpty());
+
+        assertEquals(Float32.Infinity.bits, Arithmetic.division(Float32.fromInteger(1), Float32.Zero, e).bits);
+        assertEquals(Float32.NegativeInfinity.bits, Arithmetic.division(Float32.fromInteger(-1), Float32.Zero, e).bits);
+        assertEquals(Float32.NegativeInfinity.bits, Arithmetic.division(Float32.fromInteger(1), Float32.NegativeZero, e).bits);
+        e.flags.contains(Flags.divByZero);
+        e.flags.remove(Flags.divByZero);
+        assertTrue(e.flags.isEmpty());
+
+        assertEquals(Float32.Zero.bits, Arithmetic.division(Float32.Zero,Float32.fromInteger(1),e).bits);
+        assertEquals(Float32.NegativeZero.bits, Arithmetic.division(Float32.NegativeZero,Float32.fromInteger(1),e).bits);
+        assertEquals(Float32.Zero.bits, Arithmetic.division(Float32.fromInteger(1),Float32.Infinity,e).bits);
+        assertEquals(Float32.NegativeZero.bits, Arithmetic.division(Float32.fromInteger(1),Float32.NegativeInfinity,e).bits);
+        assertEquals(Float32.Infinity.bits, Arithmetic.division(Float32.Infinity,Float32.fromInteger(1),e).bits);
+        assertEquals(Float32.Infinity.bits, Arithmetic.division(Float32.Infinity,Float32.Zero, e).bits);
+        assertTrue(e.flags.isEmpty());
+
     }
 
     private int intDivHelper(int a, int b) {

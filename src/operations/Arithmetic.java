@@ -76,6 +76,11 @@ public class Arithmetic {
             return a.NaN();
         }
 
+        // Section 6.1
+        if(a.isInfinite() || b.isInfinite()){
+            return a.isSignMinus() == b.isSignMinus() ? a.Infinity() : a.NegativeInfinity();
+        }
+
         if (a.isZero() || b.isZero()) {
             return a.isSignMinus() == b.isSignMinus() ? a.Zero() : a.NegativeZero();
         }
@@ -91,7 +96,7 @@ public class Arithmetic {
         if (b.isNaN()) return b;
 
         // Section 7.2
-        if ((a.isZero() && b.isZero()) || (a.isInfinite() || b.isInfinite())) {
+        if ((a.isZero() && b.isZero()) || (a.isInfinite() && b.isInfinite())) {
             env.flags.add(Flags.invalid);
             return a.NaN();
         }

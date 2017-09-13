@@ -31,37 +31,7 @@ public class TestConversions {
     }
 
     @Test
-    void Float32vsExactFloat() {
-        // TODO: break up into subtests
-        assertEquals(0x00000001, new ExactFloat(new Float32(0x00000001)).toFloat32(new Environment()).bits);
-        assertEquals(0x00000010, new ExactFloat(new Float32(0x00000010)).toFloat32(new Environment()).bits);
-        assertEquals(0x00400000, new ExactFloat(new Float32(0x00400000)).toFloat32(new Environment()).bits);
-        assertEquals(0x7F7FFFFF, new ExactFloat(new Float32(0x7F7FFFFF)).toFloat32(new Environment()).bits);
-
-        Environment e = new Environment();
-        assertEquals(0x00000000, new ExactFloat(false, -151, BigInteger.ONE).toFloat32(e).bits);
-        assertTrue(e.flags.contains(Flags.inexact));
-        assertTrue(e.flags.contains(Flags.underflow));
-
-        Float32 max = new Float32(0x7F7FFFFF);
-        ExactFloat tooBig = new ExactFloat(false, 128, BigInteger.ONE);
-        e = new Environment(RoundingMode.zero);
-        assertEquals(max.bits, tooBig.toFloat32(e).bits);
-        assertTrue(e.flags.contains(Flags.inexact));
-        assertTrue(e.flags.contains(Flags.overflow));
-        assertEquals(max.bits, tooBig.toFloat32(new Environment(RoundingMode.min)).bits);
-        assertEquals(Float32.Infinity.bits, tooBig.toFloat32(new Environment(RoundingMode.max)).bits);
-        assertEquals(Float32.Infinity.bits, tooBig.toFloat32(new Environment(RoundingMode.even)).bits);
-        assertEquals(Float32.Infinity.bits, tooBig.toFloat32(new Environment(RoundingMode.away)).bits);
-
-        max = max.negate();
-        tooBig = tooBig.negate();
-        assertEquals(max.bits, tooBig.toFloat32(e).bits);
-        assertEquals(max.bits, tooBig.toFloat32(new Environment(RoundingMode.max)).bits);
-        assertEquals(Float32.NegativeInfinity.bits, tooBig.toFloat32(new Environment(RoundingMode.min)).bits);
-        assertEquals(Float32.NegativeInfinity.bits, tooBig.toFloat32(new Environment(RoundingMode.even)).bits);
-        assertEquals(Float32.NegativeInfinity.bits, tooBig.toFloat32(new Environment(RoundingMode.away)).bits);
-
+    void SubnormalConversion(){
         ExactFloat small = new ExactFloat(false, -151, BigInteger.valueOf(3));
         assertEquals(0x00000001, small.toFloat32(new Environment(RoundingMode.zero)).bits);
         assertEquals(0x00000001, small.toFloat32(new Environment(RoundingMode.min)).bits);
@@ -91,6 +61,67 @@ public class TestConversions {
         assertEquals(0x00800000, normal.toFloat32(new Environment(RoundingMode.even)).bits);
         assertEquals(0x00800000, normal.toFloat32(new Environment(RoundingMode.max)).bits);
         assertEquals(0x00800000, normal.toFloat32(new Environment(RoundingMode.away)).bits);
+    }
+    @Test
+    void BasicConversions() {
+        assertEquals(0x00000001, new ExactFloat(new Float32(0x00000001)).toFloat32(new Environment()).bits);
+        assertEquals(0x00000010, new ExactFloat(new Float32(0x00000010)).toFloat32(new Environment()).bits);
+        assertEquals(0x00400000, new ExactFloat(new Float32(0x00400000)).toFloat32(new Environment()).bits);
+        assertEquals(0x7F7FFFFF, new ExactFloat(new Float32(0x7F7FFFFF)).toFloat32(new Environment()).bits);
+
+        Environment e = new Environment();
+        assertEquals(0x00000000, new ExactFloat(false, -151, BigInteger.ONE).toFloat32(e).bits);
+        assertTrue(e.flags.contains(Flags.inexact));
+        assertTrue(e.flags.contains(Flags.underflow));
+    }
+
+    @Test
+    void NormalRoundingConversions(){
+        ExactFloat ef = new ExactFloat(false,0,BigInteger.ONE);
+        ExactFloat small = new ExactFloat(false,-24,BigInteger.ONE);
+
+        assertEquals(0x3F800000,ef.add(small).toFloat32(new Environment(RoundingMode.zero)).bits);
+        assertEquals(0x3F800000,ef.add(small).toFloat32(new Environment(RoundingMode.min)).bits);
+        assertEquals(0x3F800000,ef.add(small).toFloat32(new Environment(RoundingMode.even)).bits);
+        assertEquals(0x3F800001,ef.add(small).toFloat32(new Environment(RoundingMode.max)).bits);
+        assertEquals(0x3F800001,ef.add(small).toFloat32(new Environment(RoundingMode.away)).bits);
+
+        small = new ExactFloat(false,-25,BigInteger.valueOf(3));
+        assertEquals(0x3F800001,ef.add(small).toFloat32(new Environment(RoundingMode.even)).bits);
+
+        small = new ExactFloat(false,-25,BigInteger.ONE);
+        assertEquals(0x3F800000,ef.add(small).toFloat32(new Environment(RoundingMode.away)).bits);
+
+        ef = new ExactFloat(new Float32(0x3FFFFFFF));
+        small = new ExactFloat(false,-24,BigInteger.ONE);
+
+        assertEquals(0x3FFFFFFF,ef.add(small).toFloat32(new Environment(RoundingMode.zero)).bits);
+        assertEquals(0x3FFFFFFF,ef.add(small).toFloat32(new Environment(RoundingMode.min)).bits);
+        assertEquals(0x40000000,ef.add(small).toFloat32(new Environment(RoundingMode.even)).bits);
+        assertEquals(0x40000000,ef.add(small).toFloat32(new Environment(RoundingMode.max)).bits);
+        assertEquals(0x40000000,ef.add(small).toFloat32(new Environment(RoundingMode.away)).bits);
+    }
+
+    @Test
+    void LargeConversions(){
+        Float32 max = new Float32(0x7F7FFFFF);
+        ExactFloat tooBig = new ExactFloat(false, 128, BigInteger.ONE);
+        Environment e = new Environment(RoundingMode.zero);
+        assertEquals(max.bits, tooBig.toFloat32(e).bits);
+        assertTrue(e.flags.contains(Flags.inexact));
+        assertTrue(e.flags.contains(Flags.overflow));
+        assertEquals(max.bits, tooBig.toFloat32(new Environment(RoundingMode.min)).bits);
+        assertEquals(Float32.Infinity.bits, tooBig.toFloat32(new Environment(RoundingMode.max)).bits);
+        assertEquals(Float32.Infinity.bits, tooBig.toFloat32(new Environment(RoundingMode.even)).bits);
+        assertEquals(Float32.Infinity.bits, tooBig.toFloat32(new Environment(RoundingMode.away)).bits);
+
+        max = max.negate();
+        tooBig = tooBig.negate();
+        assertEquals(max.bits, tooBig.toFloat32(e).bits);
+        assertEquals(max.bits, tooBig.toFloat32(new Environment(RoundingMode.max)).bits);
+        assertEquals(Float32.NegativeInfinity.bits, tooBig.toFloat32(new Environment(RoundingMode.min)).bits);
+        assertEquals(Float32.NegativeInfinity.bits, tooBig.toFloat32(new Environment(RoundingMode.even)).bits);
+        assertEquals(Float32.NegativeInfinity.bits, tooBig.toFloat32(new Environment(RoundingMode.away)).bits);
     }
 
     @Test

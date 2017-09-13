@@ -1,15 +1,14 @@
 package operations;
 
-import internal.ExactFloat;
 import main.Environment;
 import main.Flags;
-import types.Float32;
+import types.Floating;
 
 /**
  * Groups conversion operations such as integer to float32, float32 to integer, etc
  */
 public class Conversions {
-    public static Float32 roundToIntegral(Float32 f, Environment env) {
+    public static <T extends Floating<T>> T roundToIntegral(T f, Environment env) {
         // Section 5.9 and 7.2
         if (f.isNaN()) {
             //TODO: signal invalid operation
@@ -22,10 +21,10 @@ public class Conversions {
         if (f.isZero()) {
             return f;
         }
-        return new ExactFloat(f).roundToIntegral(env).toFloat32(env);
+        return f.fromExactFloat(f.toExactFloat().roundToIntegral(env),env);
     }
 
-    public static int convertToIntegral(Float32 f, Environment env) {
+    public static <T extends Floating<T>> int convertToIntegral(T f, Environment env) {
         // Section 5.9 and 7.2
         if (f.isNaN()) {
             env.flags.add(Flags.invalid);
@@ -37,6 +36,6 @@ public class Conversions {
         if (f.isZero()) {
             return 0;
         }
-        return new ExactFloat(f).toIntegral(env);
+        return f.toExactFloat().toIntegral(env);
     }
 }
