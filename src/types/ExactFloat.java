@@ -103,13 +103,13 @@ public class ExactFloat extends Floating implements Comparable<ExactFloat> {
             env.flags.add(Flags.inexact);
             switch (env.mode){
                 case zero:
-                    return new Float32(sign, 254, -1); // Largest finite number
+                    return new Float32(sign, 127, -1); // Largest finite number
                 case min:
                 case max:
                     if(sign != (env.mode == RoundingMode.max)){
                         return sign?Float32.NegativeInfinity:Float32.Infinity;
                     }else{
-                        return new Float32(sign, 254, -1); // Largest finite number
+                        return new Float32(sign, 127, -1); // Largest finite number
                     }
                 case away:
                 case even:
@@ -209,7 +209,7 @@ public class ExactFloat extends Floating implements Comparable<ExactFloat> {
      * because exact divisions such as 1/2 will be completely exact. This is not a guarantee with many other methods.
      *
      * Many implementation use Newton–Raphson division because it is much faster, but the analysis to guarantee
-     * correct rounding behavior is beyond me. And likly fairly easy to mess up
+     * correct rounding behavior is beyond me.
      *
      * @param other the dividend
      * @param accuracy the number of bits to compute
@@ -328,6 +328,10 @@ public class ExactFloat extends Floating implements Comparable<ExactFloat> {
 
     public ExactFloat abs(){
         return new ExactFloat(false, exponent, significand);
+    }
+
+    public ExactFloat negate(){
+        return new ExactFloat(!sign, exponent, significand);
     }
 
     @Override
