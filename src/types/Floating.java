@@ -1,9 +1,13 @@
 package types;
 
+import internal.ExactFloat;
+import main.Environment;
+
 /**
  * General classifications that any floating point class needs to provide.
  */
-public abstract class Floating {
+public abstract class Floating<T extends Floating<T>> {
+    // TODO: order/group these
     public abstract boolean isSignMinus();
 
     public abstract boolean isInfinite();
@@ -23,4 +27,24 @@ public abstract class Floating {
     public abstract boolean isCanonical();
 
     public abstract boolean isZero();
+
+    // TODO: consider making a full bit field representation method for generic conversions
+    public abstract int maxPrecision();
+
+    public abstract T NaN();
+
+    public abstract T Zero();
+
+    public abstract T NegativeZero();
+
+    public abstract T Infinity();
+
+    public abstract T NegativeInfinity();
+
+    public abstract T fromExactFloat(ExactFloat f, Environment env);
+
+    public abstract ExactFloat toExactFloat();
+
+    public abstract T negate();
+
 }

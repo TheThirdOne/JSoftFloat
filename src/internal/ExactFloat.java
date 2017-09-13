@@ -1,9 +1,10 @@
-package types;
+package internal;
 
 
 import main.Environment;
 import main.Flags;
 import main.RoundingMode;
+import types.Float32;
 
 import java.math.BigInteger;
 
@@ -15,7 +16,7 @@ import java.math.BigInteger;
  * Square Root and Division cannot really use this because they cannot avoid the precision issue. They have to stop
  * computing digits once they get past the maximum length of the significand.
  */
-public class ExactFloat extends Floating implements Comparable<ExactFloat> {
+public class ExactFloat implements Comparable<ExactFloat> {
     // Value = (-1)^sign * significand * 2^exponent
     private boolean sign;
     private int exponent;
@@ -46,6 +47,7 @@ public class ExactFloat extends Floating implements Comparable<ExactFloat> {
         significand = sig;
     }
 
+    // TODO: make generic or move to Float32
     public Float32 toFloat32(Environment env) {
         if (isZero()) {
             return (sign) ? Float32.NegativeZero : Float32.Zero;
@@ -339,42 +341,6 @@ public class ExactFloat extends Floating implements Comparable<ExactFloat> {
         return new ExactFloat(!sign, exponent, significand);
     }
 
-    @Override
-    public boolean isSignMinus() {
-        return sign;
-    }
-
-    @Override
-    public boolean isInfinite() {
-        return false;
-    }
-
-    @Override
-    public boolean isNormal() {
-        return true; // TODO: does this make sense
-    }
-
-    @Override
-    public boolean isSubnormal() {
-        return false; // TODO: does this make sense
-    }
-
-    @Override
-    public boolean isNaN() {
-        return false;
-    }
-
-    @Override
-    public boolean isSignalling() {
-        return false;
-    }
-
-    @Override
-    public boolean isCanonical() {
-        return true; // TODO: does this make sense
-    }
-
-    @Override
     public boolean isZero() {
         return significand.equals(BigInteger.ZERO);
     }

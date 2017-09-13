@@ -1,9 +1,12 @@
 package types;
 
+import internal.ExactFloat;
+import main.Environment;
+
 /**
  * Represents the Binary32 format
  */
-public class Float32 extends Floating {
+public class Float32 extends Floating<Float32> {
     // TODO: make a more abstract binary float class
     public static final Float32 Zero = new Float32(0),
             NegativeZero = new Float32(0x80000000),
@@ -89,5 +92,45 @@ public class Float32 extends Floating {
 
     public boolean isZero() {
         return bits == 0 || bits == 0x80000000;
+    }
+
+    @Override
+    public Float32 NaN() {
+        return NaN;
+    }
+
+    @Override
+    public Float32 Zero() {
+        return Zero;
+    }
+
+    @Override
+    public Float32 NegativeZero() {
+        return NegativeZero;
+    }
+
+    @Override
+    public Float32 Infinity() {
+        return Infinity;
+    }
+
+    @Override
+    public Float32 NegativeInfinity() {
+        return NegativeInfinity;
+    }
+
+    @Override
+    public Float32 fromExactFloat(ExactFloat ef, Environment env) {
+        return ef.toFloat32(env);
+    }
+
+    @Override
+    public ExactFloat toExactFloat() {
+        return new ExactFloat(this);
+    }
+
+    @Override
+    public int maxPrecision() {
+        return 24;
     }
 }

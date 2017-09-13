@@ -1,8 +1,8 @@
 package operations;
 
+import internal.ExactFloat;
 import main.Environment;
 import main.Flags;
-import types.ExactFloat;
 import types.Float32;
 
 /**

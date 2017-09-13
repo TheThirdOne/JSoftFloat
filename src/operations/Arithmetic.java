@@ -1,16 +1,16 @@
 package operations;
 
+import internal.ExactFloat;
 import main.Environment;
 import main.Flags;
 import main.RoundingMode;
-import types.ExactFloat;
-import types.Float32;
+import types.Floating;
 
 /**
  * Groups any arithmetic operations such as addition, subtraction, etc
  */
 public class Arithmetic {
-    public static Float32 add(Float32 a, Float32 b, Environment env) {
+    public static <T extends Floating<T>> T add(T a, T b, Environment env) {
         // TODO: handle signalling correctly
 
         // Section 6.2
@@ -21,7 +21,7 @@ public class Arithmetic {
         if (a.isInfinite()) {
             if (b.isInfinite() && (b.isSignMinus() != a.isSignMinus())) {
                 env.flags.add(Flags.invalid);
-                return Float32.NaN; // inf - inf is undefined
+                return a.NaN(); // inf - inf is undefined
             } else {
                 return a;
             }
@@ -36,7 +36,7 @@ public class Arithmetic {
                     return a; // They are the same, just pick one
                 } else {
                     // Explicitly stated in the spec
-                    return (env.mode == RoundingMode.min) ? Float32.NegativeZero : Float32.Zero;
+                    return (env.mode == RoundingMode.min) ? a.NegativeZero() : a.Zero();
                 }
             } else {
                 return b;
@@ -45,15 +45,15 @@ public class Arithmetic {
             return a;
         }
 
-        ExactFloat out = ((new ExactFloat(a)).add(new ExactFloat(b)));
+        ExactFloat out = (a.toExactFloat()).add(b.toExactFloat());
         // Check to see if it was x + (-x)
         if (out.isZero()) {
-            return (env.mode == RoundingMode.min) ? Float32.NegativeZero : Float32.Zero;
+            return (env.mode == RoundingMode.min) ? a.NegativeZero() : a.Zero();
         }
-        return out.toFloat32(env);
+        return a.fromExactFloat(out, env);
     }
 
-    public static Float32 subtraction(Float32 a, Float32 b, Environment env) {
+    public static <T extends Floating<T>> T subtraction(T a, T b, Environment env) {
         // TODO: handle signalling correctly
 
         // Section 6.2
@@ -64,7 +64,7 @@ public class Arithmetic {
         return add(a, b.negate(), env);
     }
 
-    public static Float32 multiplication(Float32 a, Float32 b, Environment env) {
+    public static <T extends Floating<T>> T multiplication(T a, T b, Environment env) {
         // TODO: handle signalling correctly
 
         // Section 6.2
@@ -73,17 +73,17 @@ public class Arithmetic {
 
         // Section 7.2
         if ((a.isZero() && b.isInfinite()) || (b.isZero() && a.isInfinite())) {
-            return Float32.NaN;
+            return a.NaN();
         }
 
         if (a.isZero() || b.isZero()) {
-            return a.isSignMinus() == b.isSignMinus() ? Float32.Zero : Float32.NegativeZero;
+            return a.isSignMinus() == b.isSignMinus() ? a.Zero() : a.NegativeZero();
         }
 
-        return (new ExactFloat(a)).multiply(new ExactFloat(b)).toFloat32(env);
+        return a.fromExactFloat(a.toExactFloat().multiply(b.toExactFloat()), env);
     }
 
-    public static Float32 division(Float32 a, Float32 b, Environment env) {
+    public static <T extends Floating<T>> T division(T a, T b, Environment env) {
         // TODO: handle signalling correctly
 
         // Section 6.2
@@ -93,28 +93,28 @@ public class Arithmetic {
         // Section 7.2
         if ((a.isZero() && b.isZero()) || (a.isInfinite() || b.isInfinite())) {
             env.flags.add(Flags.invalid);
-            return Float32.NaN;
+            return a.NaN();
         }
 
         // Section 6.1
         if (a.isInfinite()) {
-            return (a.isSignMinus() == b.isSignMinus()) ? Float32.Infinity : Float32.NegativeInfinity;
+            return (a.isSignMinus() == b.isSignMinus()) ? a.Infinity() : a.NegativeInfinity();
         }
 
         if (b.isInfinite() || a.isZero()) {
-            return (a.isSignMinus() == b.isSignMinus()) ? Float32.Zero : Float32.NegativeZero;
+            return (a.isSignMinus() == b.isSignMinus()) ? a.Zero() : a.NegativeZero();
         }
 
         // Section 7.3
         if (b.isZero()) {
             env.flags.add(Flags.divByZero);
-            return (a.isSignMinus() == b.isSignMinus()) ? Float32.Infinity : Float32.NegativeInfinity;
+            return (a.isSignMinus() == b.isSignMinus()) ? a.Infinity() : a.NegativeInfinity();
         }
 
         assert a.isFinite() && b.isFinite() : "Both should definitely be finite by this point";
 
         // TODO: replace 30 with a better number
         // TODO: in tie cases round away from zero despite rounding mode unless actually precise
-        return (new ExactFloat(a)).divide(new ExactFloat(b), 30).toFloat32(env);
+        return a.fromExactFloat(a.toExactFloat().divide(b.toExactFloat(), 30), env);
     }
 }

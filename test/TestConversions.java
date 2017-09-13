@@ -1,9 +1,9 @@
+import internal.ExactFloat;
 import main.Environment;
 import main.Flags;
 import main.RoundingMode;
 import operations.Conversions;
 import org.junit.jupiter.api.Test;
-import types.ExactFloat;
 import types.Float32;
 
 import java.math.BigInteger;
