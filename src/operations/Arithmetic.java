@@ -73,6 +73,7 @@ public class Arithmetic {
 
         // Section 7.2
         if ((a.isZero() && b.isInfinite()) || (b.isZero() && a.isInfinite())) {
+            env.flags.add(Flags.invalid);
             return a.NaN();
         }
 
@@ -86,6 +87,38 @@ public class Arithmetic {
         }
 
         return a.fromExactFloat(a.toExactFloat().multiply(b.toExactFloat()), env);
+    }
+
+    public static <T extends Floating<T>> T fusedMultiplyAdd(T a, T b, T c, Environment env) {
+        // TODO: handle signalling correctly
+
+        // Section 6.2
+        if (a.isNaN()) return a;
+        if (b.isNaN()) return b;
+        // This behaviour is implementation defined - Section 7.2
+        if (c.isNaN()) return c;
+
+        // Section 7.2
+        if ((a.isZero() && b.isInfinite()) || (b.isZero() && a.isInfinite())) {
+            env.flags.add(Flags.invalid);
+            return a.NaN();
+        }
+
+        // Section 6.1
+        if(a.isInfinite() || b.isInfinite()){
+            return add(a.isSignMinus() == b.isSignMinus() ? a.Infinity() : a.NegativeInfinity(),c,env);
+        }
+
+        if (a.isZero() || b.isZero()) {
+            return add(a.isSignMinus() == b.isSignMinus() ? a.Zero() : a.NegativeZero(),c,env);
+        }
+
+        ExactFloat multiplication = a.toExactFloat().multiply(b.toExactFloat());
+
+        if(multiplication.isZero() || c.isZero()){
+            return add(multiplication.sign == b.isSignMinus() ? a.Zero() : a.NegativeZero(),c,env);
+        }
+        return a.fromExactFloat(multiplication.add(c.toExactFloat()), env);
     }
 
     public static <T extends Floating<T>> T division(T a, T b, Environment env) {
@@ -118,8 +151,7 @@ public class Arithmetic {
 
         assert a.isFinite() && b.isFinite() : "Both should definitely be finite by this point";
 
-        // TODO: replace 30 with a better number
         // TODO: in tie cases round away from zero despite rounding mode unless actually precise
-        return a.fromExactFloat(a.toExactFloat().divide(b.toExactFloat(), 30), env);
+        return a.fromExactFloat(a.toExactFloat().divide(b.toExactFloat(), a.maxPrecision()), env);
     }
 }

@@ -17,19 +17,23 @@ public class TestArithmetic {
         assertEquals(1, addHelper(-1, 2));
         assertEquals(2, addHelper(0, 2));
 
-        assertEquals(Float32.NaN.bits, Arithmetic.add(Float32.Infinity, Float32.NegativeInfinity, new Environment()).bits);
-        assertEquals(Float32.Infinity.bits, Arithmetic.add(Float32.Infinity, Float32.fromInteger(1), new Environment()).bits);
-        assertEquals(Float32.Infinity.bits, Arithmetic.add( Float32.fromInteger(1), Float32.Infinity, new Environment()).bits);
-        assertEquals(Float32.NaN.bits, Arithmetic.add(Float32.NaN, Float32.NegativeInfinity, new Environment()).bits);
-        assertEquals(Float32.NaN.bits, Arithmetic.add(Float32.NaN, Float32.fromInteger(1), new Environment()).bits);
-        assertEquals(Float32.Zero.bits, Arithmetic.add(Float32.Zero, Float32.Zero, new Environment()).bits);
-        assertEquals(Float32.NegativeZero.bits, Arithmetic.add(Float32.NegativeZero, Float32.NegativeZero, new Environment()).bits);
-        assertEquals(Float32.Zero.bits, Arithmetic.add(Float32.Zero, Float32.Zero, new Environment()).bits);
+        Environment e = new Environment();
+        assertEquals(Float32.NaN.bits, Arithmetic.add(Float32.Infinity, Float32.NegativeInfinity, e).bits);
+        e.flags.contains(Flags.invalid);
+        e.flags.clear();
+        assertEquals(Float32.Infinity.bits, Arithmetic.add(Float32.Infinity, Float32.fromInteger(1), e).bits);
+        assertEquals(Float32.Infinity.bits, Arithmetic.add( Float32.fromInteger(1), Float32.Infinity, e).bits);
+        assertEquals(Float32.NaN.bits, Arithmetic.add(Float32.NaN, Float32.NegativeInfinity, e).bits);
+        assertEquals(Float32.NaN.bits, Arithmetic.add(Float32.NaN, Float32.fromInteger(1), e).bits);
+        assertEquals(Float32.Zero.bits, Arithmetic.add(Float32.Zero, Float32.Zero, e).bits);
+        assertEquals(Float32.NegativeZero.bits, Arithmetic.add(Float32.NegativeZero, Float32.NegativeZero, e).bits);
+        assertEquals(Float32.Zero.bits, Arithmetic.add(Float32.Zero, Float32.Zero, e).bits);
         assertEquals(Float32.Zero.bits, Arithmetic.add(Float32.Zero, Float32.NegativeZero, new Environment(RoundingMode.zero)).bits);
         assertEquals(Float32.Zero.bits, Arithmetic.add(Float32.Zero, Float32.NegativeZero, new Environment(RoundingMode.max)).bits);
         assertEquals(Float32.Zero.bits, Arithmetic.add(Float32.Zero, Float32.NegativeZero, new Environment(RoundingMode.even)).bits);
         assertEquals(Float32.Zero.bits, Arithmetic.add(Float32.Zero, Float32.NegativeZero, new Environment(RoundingMode.away)).bits);
         assertEquals(Float32.NegativeZero.bits, Arithmetic.add(Float32.Zero, Float32.NegativeZero, new Environment(RoundingMode.min)).bits);
+        assertTrue(e.flags.isEmpty());
     }
 
     private int addHelper(int a, int b) {
