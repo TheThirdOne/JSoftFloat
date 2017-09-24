@@ -32,28 +32,28 @@ public class TestConversions {
 
     @Test
     void SubnormalConversion(){
-        ExactFloat small = new ExactFloat(false, -151, BigInteger.valueOf(3));
+        ExactFloat small = new ExactFloat(false, -150, BigInteger.valueOf(3));
         assertEquals(0x00000001, Float32.fromExact(small, new Environment(RoundingMode.zero)).bits);
         assertEquals(0x00000001, Float32.fromExact(small, new Environment(RoundingMode.min)).bits);
         assertEquals(0x00000002, Float32.fromExact(small , new Environment(RoundingMode.even)).bits);
         assertEquals(0x00000002, Float32.fromExact(small , new Environment(RoundingMode.max)).bits);
         assertEquals(0x00000002, Float32.fromExact(small , new Environment(RoundingMode.away)).bits);
 
-        small = new ExactFloat(false, -151, BigInteger.valueOf(5));
+        small = new ExactFloat(false, -150, BigInteger.valueOf(5));
         assertEquals(0x00000002, Float32.fromExact(small , new Environment(RoundingMode.even)).bits);
 
 
-        small = new ExactFloat(false, -152, BigInteger.valueOf(5));
+        small = new ExactFloat(false, -151, BigInteger.valueOf(5));
         assertEquals(0x00000001, Float32.fromExact(small , new Environment(RoundingMode.even)).bits);
         assertEquals(0x00000001, Float32.fromExact(small , new Environment(RoundingMode.away)).bits);
 
-        small = new ExactFloat(false, -152, BigInteger.valueOf(7));
+        small = new ExactFloat(false, -151, BigInteger.valueOf(7));
         assertEquals(0x00000002, Float32.fromExact(small , new Environment(RoundingMode.even)).bits);
         assertEquals(0x00000002, Float32.fromExact(small , new Environment(RoundingMode.away)).bits);
 
 
         ExactFloat largeSubnormal = new Float32(0x007FFFFF).toExactFloat();
-        ExactFloat belowSubnormal = new ExactFloat(false, -151, BigInteger.ONE);
+        ExactFloat belowSubnormal = new ExactFloat(false, -150, BigInteger.ONE);
         ExactFloat normal = largeSubnormal.add(belowSubnormal);
 
         assertEquals(0x007FFFFF, Float32.fromExact(normal, new Environment(RoundingMode.zero)).bits);

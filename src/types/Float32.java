@@ -135,16 +135,16 @@ public class Float32 extends Floating<Float32> {
             env.flags.add(Flags.underflow);
             env.flags.add(Flags.inexact);
             return ef.sign ? Float32.NegativeZero : Float32.Zero;
-        } else if (normalizedExponent <= -127) {
+        } else if (normalizedExponent <= -126) {
             // Subnormal
             ExactFloat f = ef.normalize();
-            if (f.exponent >= -150) {
+            if (f.exponent > -150) {
                 assert f.significand.bitLength() <= 23 : "Its actually normal";
-                return new Float32(f.sign, -127, f.significand.shiftLeft(150 + f.exponent).intValueExact());
+                return new Float32(f.sign, -127, f.significand.shiftLeft(149 + f.exponent).intValueExact());
             }
 
             env.flags.add(Flags.inexact);
-            int bitsToRound = -150 - f.exponent;
+            int bitsToRound = -149 - f.exponent;
             BigInteger mainBits = f.significand.shiftRight(bitsToRound).shiftLeft(bitsToRound);
             BigInteger roundedBits = f.significand.subtract(mainBits);
 
@@ -204,6 +204,7 @@ public class Float32 extends Floating<Float32> {
             ExactFloat f = ef.normalize();
             if (f.significand.bitLength() <= 24) {
                 // No rounding needed
+                assert f.exponent + f.significand.bitLength() - 1 > -127 : "Its actually subnormal";
                 Float32 a = new Float32(f.sign, f.exponent + f.significand.bitLength() - 1, f.significand.shiftLeft(24 - f.significand.bitLength()).intValueExact() & 0x007FFFFF);
 
                 return a;
@@ -268,7 +269,7 @@ public class Float32 extends Floating<Float32> {
             exponent = exponent() - 23;
             significand = BigInteger.valueOf((bits & 0x007FFFFF) + 0x00800000); // Add back the implied one
         } else if (isSubnormal()) {
-            exponent = exponent() - 23;
+            exponent = exponent() - 22;
             significand = BigInteger.valueOf(bits & 0x007FFFFF);
         } else {
             assert false : "This should not be reachable";
