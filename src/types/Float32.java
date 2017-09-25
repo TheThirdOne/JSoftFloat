@@ -151,7 +151,7 @@ public class Float32 extends Floating<Float32> {
             Float32 towardsZero = new Float32(ef.sign, -127, f.significand.shiftRight(bitsToRound).intValueExact());
             Float32 awayZero;
             BigInteger upBits = f.significand.shiftRight(bitsToRound).add(BigInteger.valueOf(1));
-            if (upBits.testBit(0) || upBits.bitLength() < 23) {
+            if (upBits.testBit(0) || upBits.bitLength() <= 23) {
                 awayZero = new Float32(ef.sign, -127, upBits.intValueExact());
             } else {
                 awayZero = new Float32(ef.sign, -126, upBits.intValueExact() & 0x007FFFFF);
