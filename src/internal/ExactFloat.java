@@ -83,7 +83,7 @@ public class ExactFloat implements Comparable<ExactFloat> {
         ExactFloat a = normalize(), b = other.normalize();
         BigInteger divisor = a.significand, dividend = b.significand;
         BigInteger outbits = BigInteger.ZERO;
-
+        int expChange = dividend.bitLength() - divisor.bitLength();
         // Line up the numbers
         if (divisor.bitLength() > dividend.bitLength()) {
             dividend = dividend.shiftLeft(divisor.bitLength() - dividend.bitLength());
@@ -91,19 +91,25 @@ public class ExactFloat implements Comparable<ExactFloat> {
             divisor = divisor.shiftLeft(dividend.bitLength() - divisor.bitLength());
         }
 
+
+        int count = 0;
         // Perform long division
         while (outbits.bitLength() < accuracy) {
             outbits = outbits.shiftLeft(1);
             if (divisor.compareTo(dividend) >= 0) {
                 divisor = divisor.subtract(dividend);
                 outbits = outbits.add(BigInteger.ONE);
+
             }
+            count++;
             divisor = divisor.shiftLeft(1);
             if (divisor.equals(BigInteger.ZERO)) {
                 break;
             }
+
         }
-        return new ExactFloat(a.sign != b.sign, a.exponent - b.exponent, outbits);
+        return new ExactFloat(a.sign != b.sign, a.exponent - b.exponent - count - expChange + 1, outbits);
+
     }
 
     public ExactFloat normalize() {
