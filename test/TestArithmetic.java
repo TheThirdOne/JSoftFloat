@@ -134,4 +134,22 @@ public class TestArithmetic {
         Arithmetic.division(Float32.fromInteger(a), Float32.fromInteger(b), e);
         return e.flags.contains(Flags.inexact);
     }
+
+    @Test
+    public void sqrtTest() {
+        assertEquals(7, intSqrtHelper(49));
+        assertEquals(5, intSqrtHelper(25));
+        assertEquals(4, intSqrtHelper(16));
+        assertEquals(1, intSqrtHelper(1));
+        assertEquals(0, intSqrtHelper(0));
+
+    }
+
+    private int intSqrtHelper(int a) {
+        return Conversions.convertToIntegral(sqrtHelper(a), new Environment());
+    }
+
+    private Float32 sqrtHelper(int a) {
+        return Arithmetic.squareRoot(Float32.fromInteger(a), new Environment());
+    }
 }

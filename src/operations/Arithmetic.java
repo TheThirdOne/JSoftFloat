@@ -89,6 +89,30 @@ public class Arithmetic {
         return a.fromExactFloat(a.toExactFloat().multiply(b.toExactFloat()), env);
     }
 
+    public static <T extends Floating<T>> T squareRoot(T a, Environment env) {
+        // TODO: handle signalling correctly
+
+        // Section 6.2
+        if (a.isNaN()) return a;
+
+        // Section 6.3
+        if (a.isZero()) {
+            return a;
+        }
+
+        // Section 7.2
+        if (a.isSignMinus()) {
+            return a.NaN();
+        }
+
+        // Section 6.1
+        if (a.isInfinite()) {
+            return a;
+        }
+
+        return a.fromExactFloat(a.toExactFloat().squareRoot(a.maxPrecision()), env);
+    }
+
     public static <T extends Floating<T>> T fusedMultiplyAdd(T a, T b, T c, Environment env) {
         // TODO: handle signalling correctly
 

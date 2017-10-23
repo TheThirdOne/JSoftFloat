@@ -109,9 +109,57 @@ public class ExactFloat implements Comparable<ExactFloat> {
 
         }
         return new ExactFloat(a.sign != b.sign, a.exponent - b.exponent - count - expChange + 1, outbits);
-
     }
 
+    public ExactFloat squareRoot(int accuracy) {
+        assert !sign : "Square root of a negative number is not real";
+        ExactFloat normed = normalize();
+        // Start with a first guess relatively close to (but definitely above) the actual square root.
+        // And shrink it until it is below
+        int exp = (normed.exponent + normed.significand.bitLength()) / 2 + 1;
+        while (true) {
+            ExactFloat tmp = new ExactFloat(false, exp, BigInteger.ONE);
+            int cmp = normed.compareTo(tmp.multiply(tmp));
+            if (cmp == 0) {
+                return tmp;
+            } else if (cmp > 0) {
+                break;
+            }
+            exp--;
+        }
+
+        // Then use binary search until accuracy bits are determined
+        ExactFloat a = new ExactFloat(false, exp, BigInteger.ONE), b = new ExactFloat(false, exp + 1, BigInteger.ONE);
+        for (int i = 0; i < accuracy; i++) {
+            ExactFloat tmp = a.add(b).shiftRight(1);
+            int cmp = normed.compareTo(tmp.multiply(tmp));
+            if (cmp == 0) {
+                return tmp;
+            } else if (cmp > 0) {
+                a = tmp;
+            } else if (cmp < 0) {
+                b = tmp;
+            } else {
+                assert false : "Cannot get here";
+            }
+        }
+        ExactFloat tmp = a.add(b).shiftRight(1);
+        int cmp = normed.compareTo(tmp.multiply(tmp));
+        if (cmp == 0) {
+            return tmp;
+        } else if (cmp > 0) {
+            return tmp.add(b).shiftRight(1); // ensure it doesn't round incorrectly
+        } else if (cmp < 0) {
+            return tmp.add(a).shiftRight(1); // ensure it doesn't round incorrectly
+        } else {
+            assert false : "Cannot get here";
+            return null;
+        }
+    }
+
+    public ExactFloat shiftRight(int i) {
+        return new ExactFloat(sign, exponent - i, significand);
+    }
     public ExactFloat normalize() {
         if (isZero()) return new ExactFloat(sign, 0, BigInteger.ZERO);
         return new ExactFloat(sign, exponent + significand.getLowestSetBit(),
@@ -185,10 +233,10 @@ public class ExactFloat implements Comparable<ExactFloat> {
         } else if (exponent - other.exponent + significand.bitLength() - other.significand.bitLength() < 0) {
             return sign ? 1 : -1;
         } else {
-            if (exponent > other.exponent) {
-                return significand.compareTo(other.significand.shiftLeft(exponent - other.exponent)) * (sign ? -1 : 1);
+            if (exponent < other.exponent) {
+                return significand.compareTo(other.significand.shiftLeft(other.exponent - exponent)) * (sign ? -1 : 1);
             } else {
-                return significand.shiftLeft(other.exponent - exponent).compareTo(other.significand) * (sign ? -1 : 1);
+                return significand.shiftLeft(exponent - other.exponent).compareTo(other.significand) * (sign ? -1 : 1);
             }
         }
     }
