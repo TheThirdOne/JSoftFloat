@@ -21,7 +21,7 @@ public class Conversions {
         if (f.isZero()) {
             return f;
         }
-        return f.fromExactFloat(f.toExactFloat().roundToIntegral(env),env);
+        return f.fromExactFloat(f.toExactFloat().roundToIntegral(env), env);
     }
 
     public static <T extends Floating<T>> int convertToIntegral(T f, Environment env) {

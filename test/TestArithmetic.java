@@ -22,7 +22,7 @@ public class TestArithmetic {
         e.flags.contains(Flags.invalid);
         e.flags.clear();
         assertEquals(Float32.Infinity.bits, Arithmetic.add(Float32.Infinity, Float32.fromInteger(1), e).bits);
-        assertEquals(Float32.Infinity.bits, Arithmetic.add( Float32.fromInteger(1), Float32.Infinity, e).bits);
+        assertEquals(Float32.Infinity.bits, Arithmetic.add(Float32.fromInteger(1), Float32.Infinity, e).bits);
         assertEquals(Float32.NaN.bits, Arithmetic.add(Float32.NaN, Float32.NegativeInfinity, e).bits);
         assertEquals(Float32.NaN.bits, Arithmetic.add(Float32.NaN, Float32.fromInteger(1), e).bits);
         assertEquals(Float32.Zero.bits, Arithmetic.add(Float32.Zero, Float32.Zero, e).bits);
@@ -111,12 +111,12 @@ public class TestArithmetic {
         e.flags.remove(Flags.divByZero);
         assertTrue(e.flags.isEmpty());
 
-        assertEquals(Float32.Zero.bits, Arithmetic.division(Float32.Zero,Float32.fromInteger(1),e).bits);
-        assertEquals(Float32.NegativeZero.bits, Arithmetic.division(Float32.NegativeZero,Float32.fromInteger(1),e).bits);
-        assertEquals(Float32.Zero.bits, Arithmetic.division(Float32.fromInteger(1),Float32.Infinity,e).bits);
-        assertEquals(Float32.NegativeZero.bits, Arithmetic.division(Float32.fromInteger(1),Float32.NegativeInfinity,e).bits);
-        assertEquals(Float32.Infinity.bits, Arithmetic.division(Float32.Infinity,Float32.fromInteger(1),e).bits);
-        assertEquals(Float32.Infinity.bits, Arithmetic.division(Float32.Infinity,Float32.Zero, e).bits);
+        assertEquals(Float32.Zero.bits, Arithmetic.division(Float32.Zero, Float32.fromInteger(1), e).bits);
+        assertEquals(Float32.NegativeZero.bits, Arithmetic.division(Float32.NegativeZero, Float32.fromInteger(1), e).bits);
+        assertEquals(Float32.Zero.bits, Arithmetic.division(Float32.fromInteger(1), Float32.Infinity, e).bits);
+        assertEquals(Float32.NegativeZero.bits, Arithmetic.division(Float32.fromInteger(1), Float32.NegativeInfinity, e).bits);
+        assertEquals(Float32.Infinity.bits, Arithmetic.division(Float32.Infinity, Float32.fromInteger(1), e).bits);
+        assertEquals(Float32.Infinity.bits, Arithmetic.division(Float32.Infinity, Float32.Zero, e).bits);
         assertTrue(e.flags.isEmpty());
 
     }

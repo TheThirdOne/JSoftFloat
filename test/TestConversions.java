@@ -31,25 +31,25 @@ public class TestConversions {
     }
 
     @Test
-    void SubnormalConversion(){
+    void SubnormalConversion() {
         ExactFloat small = new ExactFloat(false, -150, BigInteger.valueOf(3));
         assertEquals(0x00000001, Float32.fromExact(small, new Environment(RoundingMode.zero)).bits);
         assertEquals(0x00000001, Float32.fromExact(small, new Environment(RoundingMode.min)).bits);
-        assertEquals(0x00000002, Float32.fromExact(small , new Environment(RoundingMode.even)).bits);
-        assertEquals(0x00000002, Float32.fromExact(small , new Environment(RoundingMode.max)).bits);
-        assertEquals(0x00000002, Float32.fromExact(small , new Environment(RoundingMode.away)).bits);
+        assertEquals(0x00000002, Float32.fromExact(small, new Environment(RoundingMode.even)).bits);
+        assertEquals(0x00000002, Float32.fromExact(small, new Environment(RoundingMode.max)).bits);
+        assertEquals(0x00000002, Float32.fromExact(small, new Environment(RoundingMode.away)).bits);
 
         small = new ExactFloat(false, -150, BigInteger.valueOf(5));
-        assertEquals(0x00000002, Float32.fromExact(small , new Environment(RoundingMode.even)).bits);
+        assertEquals(0x00000002, Float32.fromExact(small, new Environment(RoundingMode.even)).bits);
 
 
         small = new ExactFloat(false, -151, BigInteger.valueOf(5));
-        assertEquals(0x00000001, Float32.fromExact(small , new Environment(RoundingMode.even)).bits);
-        assertEquals(0x00000001, Float32.fromExact(small , new Environment(RoundingMode.away)).bits);
+        assertEquals(0x00000001, Float32.fromExact(small, new Environment(RoundingMode.even)).bits);
+        assertEquals(0x00000001, Float32.fromExact(small, new Environment(RoundingMode.away)).bits);
 
         small = new ExactFloat(false, -151, BigInteger.valueOf(7));
-        assertEquals(0x00000002, Float32.fromExact(small , new Environment(RoundingMode.even)).bits);
-        assertEquals(0x00000002, Float32.fromExact(small , new Environment(RoundingMode.away)).bits);
+        assertEquals(0x00000002, Float32.fromExact(small, new Environment(RoundingMode.even)).bits);
+        assertEquals(0x00000002, Float32.fromExact(small, new Environment(RoundingMode.away)).bits);
 
 
         ExactFloat largeSubnormal = new Float32(0x007FFFFF).toExactFloat();
@@ -62,6 +62,7 @@ public class TestConversions {
         assertEquals(0x00800000, Float32.fromExact(normal, new Environment(RoundingMode.max)).bits);
         assertEquals(0x00800000, Float32.fromExact(normal, new Environment(RoundingMode.away)).bits);
     }
+
     @Test
     void BasicConversions() {
         assertEquals(0x00000001, Float32.fromExact(new Float32(0x00000001).toExactFloat(), new Environment()).bits);
@@ -76,34 +77,34 @@ public class TestConversions {
     }
 
     @Test
-    void NormalRoundingConversions(){
-        ExactFloat ef = new ExactFloat(false,0,BigInteger.ONE);
-        ExactFloat small = new ExactFloat(false,-24,BigInteger.ONE);
+    void NormalRoundingConversions() {
+        ExactFloat ef = new ExactFloat(false, 0, BigInteger.ONE);
+        ExactFloat small = new ExactFloat(false, -24, BigInteger.ONE);
 
-        assertEquals(0x3F800000,Float32.fromExact(ef.add(small), new Environment(RoundingMode.zero)).bits);
-        assertEquals(0x3F800000,Float32.fromExact(ef.add(small), new Environment(RoundingMode.min)).bits);
-        assertEquals(0x3F800000,Float32.fromExact(ef.add(small), new Environment(RoundingMode.even)).bits);
-        assertEquals(0x3F800001,Float32.fromExact(ef.add(small), new Environment(RoundingMode.max)).bits);
-        assertEquals(0x3F800001,Float32.fromExact(ef.add(small), new Environment(RoundingMode.away)).bits);
+        assertEquals(0x3F800000, Float32.fromExact(ef.add(small), new Environment(RoundingMode.zero)).bits);
+        assertEquals(0x3F800000, Float32.fromExact(ef.add(small), new Environment(RoundingMode.min)).bits);
+        assertEquals(0x3F800000, Float32.fromExact(ef.add(small), new Environment(RoundingMode.even)).bits);
+        assertEquals(0x3F800001, Float32.fromExact(ef.add(small), new Environment(RoundingMode.max)).bits);
+        assertEquals(0x3F800001, Float32.fromExact(ef.add(small), new Environment(RoundingMode.away)).bits);
 
-        small = new ExactFloat(false,-25,BigInteger.valueOf(3));
-        assertEquals(0x3F800001,Float32.fromExact(ef.add(small), new Environment(RoundingMode.even)).bits);
+        small = new ExactFloat(false, -25, BigInteger.valueOf(3));
+        assertEquals(0x3F800001, Float32.fromExact(ef.add(small), new Environment(RoundingMode.even)).bits);
 
-        small = new ExactFloat(false,-25,BigInteger.ONE);
-        assertEquals(0x3F800000,Float32.fromExact(ef.add(small), new Environment(RoundingMode.away)).bits);
+        small = new ExactFloat(false, -25, BigInteger.ONE);
+        assertEquals(0x3F800000, Float32.fromExact(ef.add(small), new Environment(RoundingMode.away)).bits);
 
         ef = new Float32(0x3FFFFFFF).toExactFloat();
-        small = new ExactFloat(false,-24,BigInteger.ONE);
+        small = new ExactFloat(false, -24, BigInteger.ONE);
 
-        assertEquals(0x3FFFFFFF,Float32.fromExact(ef.add(small), new Environment(RoundingMode.zero)).bits);
-        assertEquals(0x3FFFFFFF,Float32.fromExact(ef.add(small), new Environment(RoundingMode.min)).bits);
-        assertEquals(0x40000000,Float32.fromExact(ef.add(small), new Environment(RoundingMode.even)).bits);
-        assertEquals(0x40000000,Float32.fromExact(ef.add(small), new Environment(RoundingMode.max)).bits);
-        assertEquals(0x40000000,Float32.fromExact(ef.add(small), new Environment(RoundingMode.away)).bits);
+        assertEquals(0x3FFFFFFF, Float32.fromExact(ef.add(small), new Environment(RoundingMode.zero)).bits);
+        assertEquals(0x3FFFFFFF, Float32.fromExact(ef.add(small), new Environment(RoundingMode.min)).bits);
+        assertEquals(0x40000000, Float32.fromExact(ef.add(small), new Environment(RoundingMode.even)).bits);
+        assertEquals(0x40000000, Float32.fromExact(ef.add(small), new Environment(RoundingMode.max)).bits);
+        assertEquals(0x40000000, Float32.fromExact(ef.add(small), new Environment(RoundingMode.away)).bits);
     }
 
     @Test
-    void LargeConversions(){
+    void LargeConversions() {
         Float32 max = new Float32(0x7F7FFFFF);
         ExactFloat tooBig = new ExactFloat(false, 128, BigInteger.ONE);
         Environment e = new Environment(RoundingMode.zero);

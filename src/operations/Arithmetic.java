@@ -78,7 +78,7 @@ public class Arithmetic {
         }
 
         // Section 6.1
-        if(a.isInfinite() || b.isInfinite()){
+        if (a.isInfinite() || b.isInfinite()) {
             return a.isSignMinus() == b.isSignMinus() ? a.Infinity() : a.NegativeInfinity();
         }
 
@@ -129,18 +129,18 @@ public class Arithmetic {
         }
 
         // Section 6.1
-        if(a.isInfinite() || b.isInfinite()){
-            return add(a.isSignMinus() == b.isSignMinus() ? a.Infinity() : a.NegativeInfinity(),c,env);
+        if (a.isInfinite() || b.isInfinite()) {
+            return add(a.isSignMinus() == b.isSignMinus() ? a.Infinity() : a.NegativeInfinity(), c, env);
         }
 
         if (a.isZero() || b.isZero()) {
-            return add(a.isSignMinus() == b.isSignMinus() ? a.Zero() : a.NegativeZero(),c,env);
+            return add(a.isSignMinus() == b.isSignMinus() ? a.Zero() : a.NegativeZero(), c, env);
         }
 
         ExactFloat multiplication = a.toExactFloat().multiply(b.toExactFloat());
 
-        if(multiplication.isZero() || c.isZero()){
-            return add(multiplication.sign == b.isSignMinus() ? a.Zero() : a.NegativeZero(),c,env);
+        if (multiplication.isZero() || c.isZero()) {
+            return add(multiplication.sign == b.isSignMinus() ? a.Zero() : a.NegativeZero(), c, env);
         }
         return a.fromExactFloat(multiplication.add(c.toExactFloat()), env);
     }

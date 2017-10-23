@@ -249,8 +249,8 @@ public class Float32 extends Floating<Float32> {
         }
     }
 
-    public static Float32 fromExact(ExactFloat ef, Environment e){
-        return Zero.fromExactFloat(ef,e);
+    public static Float32 fromExact(ExactFloat ef, Environment e) {
+        return Zero.fromExactFloat(ef, e);
     }
 
     @Override

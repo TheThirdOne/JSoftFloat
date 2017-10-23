@@ -160,6 +160,7 @@ public class ExactFloat implements Comparable<ExactFloat> {
     public ExactFloat shiftRight(int i) {
         return new ExactFloat(sign, exponent - i, significand);
     }
+
     public ExactFloat normalize() {
         if (isZero()) return new ExactFloat(sign, 0, BigInteger.ZERO);
         return new ExactFloat(sign, exponent + significand.getLowestSetBit(),

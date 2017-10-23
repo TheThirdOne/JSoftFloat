@@ -6,7 +6,7 @@ package main;
 public enum Flags {
     /**
      * Triggered when a result differs from what would have been computed were both exponent range and precision unbounded
-     *
+     * <p>
      * For example, it would be triggered by 1/3
      */
     inexact,
@@ -21,13 +21,13 @@ public enum Flags {
     overflow,
     /**
      * Triggered by creating an infinite number using zero
-     *
+     * <p>
      * For example, it would be triggered by 1/0 or log(0)
      */
     divByZero,
     /**
      * Triggered when an operation produces no meaningful value
-     *
+     * <p>
      * For example, it would be triggered by 0/0, Infinity - Infinity, etc
      */
     invalid
