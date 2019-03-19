@@ -123,76 +123,64 @@ public class Float32 extends Floating<Float32> {
         return NegativeInfinity;
     }
 
+    // Some constants that allow fromExactFloat to be mostly copied
+    private static final int sigbits = 23, expbits = 8,
+            maxexp  =   1 << (expbits-1),
+            minexp  = -(1 << (expbits-1)) + 1,
+            sigmask =  (1 << sigbits) - 1;
+
     @Override
     public Float32 fromExactFloat(ExactFloat ef, Environment env) {
-        // TODO: move some rounding code out so that implementing new types is easier
         if (ef.isZero()) {
             return ef.sign ? Float32.NegativeZero : Float32.Zero;
         }
+        ef = ef.normalize();
         int normalizedExponent = ef.exponent + ef.significand.bitLength();
-        if (normalizedExponent <= -150) {
+
+        // Used to calculate how to round at the end
+        Float32 awayZero,towardsZero;
+        BigInteger roundedBits;
+        int bitsToRound;
+
+        if (normalizedExponent <= minexp-sigbits) {
             // Section 7.5
             env.flags.add(Flags.underflow);
             env.flags.add(Flags.inexact);
             return ef.sign ? Float32.NegativeZero : Float32.Zero;
-        } else if (normalizedExponent <= -126) {
+        } else if (normalizedExponent <= minexp + 1) {
             // Subnormal
-            ExactFloat f = ef.normalize();
-            if (f.exponent > -150) {
-                assert f.significand.bitLength() <= 23 : "Its actually normal";
-                return new Float32(f.sign, -127, f.significand.shiftLeft(149 + f.exponent).intValueExact());
+
+            if (ef.exponent > minexp-sigbits) {
+                assert ef.significand.bitLength() <= sigbits : "Its actually normal";
+                return new Float32(ef.sign, minexp, ef.significand.shiftLeft(-(minexp-sigbits+1) + ef.exponent).intValueExact());
             }
 
             env.flags.add(Flags.inexact);
-            int bitsToRound = -149 - f.exponent;
-            BigInteger mainBits = f.significand.shiftRight(bitsToRound).shiftLeft(bitsToRound);
-            BigInteger roundedBits = f.significand.subtract(mainBits);
+            bitsToRound = (minexp-sigbits+1) - ef.exponent;
+            BigInteger mainBits = ef.significand.shiftRight(bitsToRound).shiftLeft(bitsToRound);
+            roundedBits = ef.significand.subtract(mainBits);
 
-            Float32 towardsZero = new Float32(ef.sign, -127, f.significand.shiftRight(bitsToRound).intValueExact());
-            Float32 awayZero;
-            BigInteger upBits = f.significand.shiftRight(bitsToRound).add(BigInteger.valueOf(1));
-            if (upBits.testBit(0) || upBits.bitLength() <= 23) {
-                awayZero = new Float32(ef.sign, -127, upBits.intValueExact());
+            towardsZero = new Float32(ef.sign,  minexp, ef.significand.shiftRight(bitsToRound).intValueExact());
+            BigInteger upBits = ef.significand.shiftRight(bitsToRound).add(BigInteger.valueOf(1));
+            if (upBits.testBit(0) || upBits.bitLength() <= sigbits) {
+                assert upBits.bitLength() <= sigbits;
+                awayZero = new Float32(ef.sign, minexp, upBits.intValueExact());
             } else {
-                awayZero = new Float32(ef.sign, -126, upBits.intValueExact() & 0x007FFFFF);
+                awayZero = new Float32(ef.sign, minexp+1, upBits.intValueExact() & sigmask);
             }
-
-            switch (env.mode) {
-                case zero:
-                    return towardsZero;
-                case max:
-                case min:
-                    if (ef.sign != (env.mode == RoundingMode.max)) {
-                        return awayZero;
-                    } else {
-                        return towardsZero;
-                    }
-            }
-
-            if (roundedBits.equals(BigInteger.ONE.shiftLeft(bitsToRound - 1))) {
-                if (env.mode == RoundingMode.away || (awayZero.bits & 1) == 0) {
-                    return awayZero;
-                } else {
-                    return towardsZero;
-                }
-            } else if (roundedBits.compareTo(BigInteger.ONE.shiftLeft(bitsToRound - 1)) > 0) {
-                return awayZero;
-            } else {
-                return towardsZero;
-            }
-        } else if (normalizedExponent > 128) { // TODO: check off by one
+        } else if (normalizedExponent > maxexp) {
             // Section 7.4
             env.flags.add(Flags.overflow);
             env.flags.add(Flags.inexact);
             switch (env.mode) {
                 case zero:
-                    return new Float32(ef.sign, 127, -1); // Largest finite number
+                    return new Float32(ef.sign, maxexp-1, -1); // Largest finite number
                 case min:
                 case max:
                     if (ef.sign != (env.mode == RoundingMode.max)) {
                         return ef.sign ? Float32.NegativeInfinity : Float32.Infinity;
                     } else {
-                        return new Float32(ef.sign, 127, -1); // Largest finite number
+                        return new Float32(ef.sign, maxexp-1, -1); // Largest finite number
                     }
                 case away:
                 case even:
@@ -201,51 +189,53 @@ public class Float32 extends Floating<Float32> {
             assert false : "Not reachable";
             return ef.sign ? Float32.NegativeInfinity : Float32.Infinity;
         } else {
-            ExactFloat f = ef.normalize();
-            if (f.significand.bitLength() <= 24) {
+            if (ef.significand.bitLength() <= (sigbits+1)) {
                 // No rounding needed
-                assert f.exponent + f.significand.bitLength() - 1 > -127 : "Its actually subnormal";
-                Float32 a = new Float32(f.sign, f.exponent + f.significand.bitLength() - 1, f.significand.shiftLeft(24 - f.significand.bitLength()).intValueExact() & 0x007FFFFF);
+                assert ef.exponent + ef.significand.bitLength() - 1 > minexp : "Its actually subnormal";
+                Float32 a = new Float32(ef.sign, ef.exponent + ef.significand.bitLength() - 1, ef.significand.shiftLeft((sigbits+1) - ef.significand.bitLength()).intValueExact() & sigmask);
 
                 return a;
             }
             env.flags.add(Flags.inexact);
-            int bitsToRound = f.significand.bitLength() - 24;
-            BigInteger mainBits = f.significand.shiftRight(bitsToRound).shiftLeft(bitsToRound);
-            BigInteger roundedBits = f.significand.subtract(mainBits);
-            Float32 awayZero;
-            BigInteger upBits = f.significand.shiftRight(bitsToRound).add(BigInteger.valueOf(1));
+            bitsToRound = ef.significand.bitLength() - (sigbits + 1);
+            BigInteger mainBits = ef.significand.shiftRight(bitsToRound).shiftLeft(bitsToRound);
+            roundedBits = ef.significand.subtract(mainBits);
 
-            Float32 towardsZero = new Float32(f.sign, f.exponent + 23 + bitsToRound, f.significand.shiftRight(bitsToRound).intValueExact() & 0x007FFFFF);
-            if (upBits.testBit(0) || upBits.bitLength() <= 24) {
-                awayZero = new Float32(f.sign, f.exponent + 23 + bitsToRound, upBits.intValueExact() & 0x007FFFFF);
+            BigInteger upBits = ef.significand.shiftRight(bitsToRound).add(BigInteger.valueOf(1));
+
+            towardsZero = new Float32(ef.sign, ef.exponent + sigbits + bitsToRound, ef.significand.shiftRight(bitsToRound).intValueExact() & sigmask);
+            if (upBits.testBit(0) || upBits.bitLength() <= sigbits+1) {
+                awayZero = new Float32(ef.sign, ef.exponent + sigbits + bitsToRound, upBits.intValueExact() & sigmask);
             } else {
-                awayZero = new Float32(f.sign, f.exponent + 24 + bitsToRound, upBits.shiftRight(1).intValueExact() & 0x007FFFFF);
+                awayZero = new Float32(ef.sign, ef.exponent + (sigbits+1) + bitsToRound, upBits.shiftRight(1).intValueExact() & sigmask);
             }
 
-            switch (env.mode) {
-                case zero:
-                    return towardsZero;
-                case max:
-                case min:
-                    if (f.sign != (env.mode == RoundingMode.max)) {
-                        return awayZero;
-                    } else {
-                        return towardsZero;
-                    }
-            }
+        }
 
-            if (roundedBits.equals(BigInteger.ONE.shiftLeft(bitsToRound - 1))) {
-                if (env.mode == RoundingMode.away || (awayZero.bits & 1) == 0) {
+        // Either round towards or away from zero based on rounding mode
+        switch (env.mode) {
+            case zero:
+                return towardsZero;
+            case max:
+            case min:
+                if (ef.sign != (env.mode == RoundingMode.max)) {
                     return awayZero;
                 } else {
                     return towardsZero;
                 }
-            } else if (roundedBits.compareTo(BigInteger.ONE.shiftLeft(bitsToRound - 1)) > 0) {
+        }
+
+        // See which result is closer to the non-rounded version
+        if (roundedBits.equals(BigInteger.ONE.shiftLeft(bitsToRound - 1))) {
+            if (env.mode == RoundingMode.away || (awayZero.bits & 1) == 0) {
                 return awayZero;
             } else {
                 return towardsZero;
             }
+        } else if (roundedBits.compareTo(BigInteger.ONE.shiftLeft(bitsToRound - 1)) > 0) {
+            return awayZero;
+        } else {
+            return towardsZero;
         }
     }
 
