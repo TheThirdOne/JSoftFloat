@@ -37,6 +37,20 @@ public class ComprehensiveTesting {
     }
 
     @Test
+    void compareToFLoatSqrt() {
+        for (int i = Integer.MAX_VALUE/4*3; i < Integer.MAX_VALUE; i++) {
+            Float32 f = new Float32(i);
+            float F = Float.intBitsToFloat(i);
+            if (f.isZero() || f.isNaN()) continue;
+            float s = (float)Math.sqrt(F);
+
+            int rawBits = Float.floatToRawIntBits(s);
+            Float32 out = Arithmetic.squareRoot(f,new Environment());
+            assertEquals(out.bits, rawBits);
+        }
+    }
+
+    @Test
     void compareToFloatAdd() {
         for (int j = 0; j < 64; j++) {
             int aBits = ThreadLocalRandom.current().nextInt();
