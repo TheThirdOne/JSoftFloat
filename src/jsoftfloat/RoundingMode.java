@@ -1,4 +1,4 @@
-package main;
+package jsoftfloat;
 
 /**
  * The different ways that rounding can be performed

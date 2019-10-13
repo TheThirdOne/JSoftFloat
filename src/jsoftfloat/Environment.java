@@ -1,4 +1,4 @@
-package main;
+package jsoftfloat;
 
 import java.util.EnumSet;
 

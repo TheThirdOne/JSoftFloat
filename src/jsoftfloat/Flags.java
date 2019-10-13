@@ -1,4 +1,4 @@
-package main;
+package jsoftfloat;
 
 /**
  * Exception flags which can be set in certain conditions

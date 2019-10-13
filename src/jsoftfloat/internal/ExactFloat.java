@@ -1,8 +1,8 @@
-package internal;
+package jsoftfloat.internal;
 
 
-import main.Environment;
-import main.RoundingMode;
+import jsoftfloat.Environment;
+import jsoftfloat.RoundingMode;
 
 import java.math.BigInteger;
 

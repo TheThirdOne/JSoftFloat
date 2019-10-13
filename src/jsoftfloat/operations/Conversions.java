@@ -1,8 +1,8 @@
-package operations;
+package jsoftfloat.operations;
 
-import main.Environment;
-import main.Flags;
-import types.Floating;
+import jsoftfloat.Environment;
+import jsoftfloat.Flags;
+import jsoftfloat.types.Floating;
 
 /**
  * Groups conversion operations such as integer to float32, float32 to integer, etc

@@ -1,10 +1,10 @@
-package operations;
+package jsoftfloat.operations;
 
-import internal.ExactFloat;
-import main.Environment;
-import main.Flags;
-import main.RoundingMode;
-import types.Floating;
+import jsoftfloat.internal.ExactFloat;
+import jsoftfloat.Environment;
+import jsoftfloat.Flags;
+import jsoftfloat.RoundingMode;
+import jsoftfloat.types.Floating;
 
 /**
  * Groups any arithmetic operations such as addition, subtraction, etc

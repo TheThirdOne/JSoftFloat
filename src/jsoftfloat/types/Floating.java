@@ -1,7 +1,7 @@
-package types;
+package jsoftfloat.types;
 
-import internal.ExactFloat;
-import main.Environment;
+import jsoftfloat.internal.ExactFloat;
+import jsoftfloat.Environment;
 
 /**
  * General classifications that any floating point class needs to provide.

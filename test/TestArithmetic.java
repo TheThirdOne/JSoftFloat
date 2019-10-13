@@ -1,10 +1,10 @@
-import main.Environment;
-import main.Flags;
-import main.RoundingMode;
-import operations.Arithmetic;
-import operations.Conversions;
+import jsoftfloat.Environment;
+import jsoftfloat.Flags;
+import jsoftfloat.RoundingMode;
+import jsoftfloat.operations.Arithmetic;
+import jsoftfloat.operations.Conversions;
 import org.junit.jupiter.api.Test;
-import types.Float32;
+import jsoftfloat.types.Float32;
 
 import static org.junit.jupiter.api.Assertions.*;
 

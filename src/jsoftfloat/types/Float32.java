@@ -1,9 +1,9 @@
-package types;
+package jsoftfloat.types;
 
-import internal.ExactFloat;
-import main.Environment;
-import main.Flags;
-import main.RoundingMode;
+import jsoftfloat.internal.ExactFloat;
+import jsoftfloat.Environment;
+import jsoftfloat.Flags;
+import jsoftfloat.RoundingMode;
 
 import java.math.BigInteger;
 
@@ -84,9 +84,10 @@ public class Float32 extends Floating<Float32> {
         return exponent() == 128 && !isInfinite();
     }
 
+    // Section 6.2.1
     public boolean isSignalling() {
-        // TODO: implement
-        return false;
+        if (!isNaN())return false;
+        return (bits&0x400000) == 0;
     }
 
     public boolean isCanonical() {

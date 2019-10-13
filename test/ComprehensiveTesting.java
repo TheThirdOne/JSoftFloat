@@ -1,10 +1,9 @@
-import internal.BigInt;
-import main.Environment;
-import main.Flags;
-import operations.Arithmetic;
-import operations.ArithmeticF32;
+import jsoftfloat.Environment;
+import jsoftfloat.Flags;
+import jsoftfloat.operations.Arithmetic;
+import jsoftfloat.operations.ArithmeticF32;
 import org.junit.jupiter.api.Test;
-import types.Float32;
+import jsoftfloat.types.Float32;
 
 import java.util.concurrent.ThreadLocalRandom;
 
