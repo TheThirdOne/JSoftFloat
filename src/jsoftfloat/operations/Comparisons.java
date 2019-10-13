@@ -101,4 +101,96 @@ public class Comparisons {
         return (a == tmp) ? b : a; // flip for max rather than min
     }
 
+    // All compares covered in Section 5.11
+    public static <T extends Floating<T>> boolean compareQuietEqual(T a, T b, Environment env) {
+        if (a.isSignalling() || b.isSignalling()) {
+            env.flags.add(Flags.invalid);
+        }
+        if (a.isNaN() || b.isNaN()) {
+            return false;
+        }
+        return a.toExactFloat().compareTo(b.toExactFloat()) == 0;
+    }
+
+    public static <T extends Floating<T>> boolean equalSignaling(T a, T b, Environment env) {
+        if (a.isNaN() || b.isNaN()) {
+            env.flags.add(Flags.invalid);
+        }
+        return compareQuietEqual(a, b, env);
+    }
+
+    public static <T extends Floating<T>> boolean compareQuietLessThan(T a, T b, Environment env) {
+        if (a.isSignalling() || b.isSignalling()) {
+            env.flags.add(Flags.invalid);
+        }
+        if (a.isNaN() || b.isNaN()) {
+            return false;
+        }
+        return a.toExactFloat().compareTo(b.toExactFloat()) < 0;
+    }
+
+    public static <T extends Floating<T>> boolean compareSignalingtLessThan(T a, T b, Environment env) {
+        if (a.isNaN() || b.isNaN()) {
+            env.flags.add(Flags.invalid);
+        }
+        return compareQuietLessThan(a, b, env);
+    }
+
+    public static <T extends Floating<T>> boolean compareQuietLessThanEqual(T a, T b, Environment env) {
+        if (a.isSignalling() || b.isSignalling()) {
+            env.flags.add(Flags.invalid);
+        }
+        if (a.isNaN() || b.isNaN()) {
+            return false;
+        }
+        return a.toExactFloat().compareTo(b.toExactFloat()) <= 0;
+    }
+
+    public static <T extends Floating<T>> boolean compareSignalingLessThanEqual(T a, T b, Environment env) {
+        if (a.isNaN() || b.isNaN()) {
+            env.flags.add(Flags.invalid);
+        }
+        return compareQuietLessThanEqual(a, b, env);
+    }
+
+    public static <T extends Floating<T>> boolean compareQuietGreaterThan(T a, T b, Environment env) {
+        if (a.isSignalling() || b.isSignalling()) {
+            env.flags.add(Flags.invalid);
+        }
+        if (a.isNaN() || b.isNaN()) {
+            return false;
+        }
+        return a.toExactFloat().compareTo(b.toExactFloat()) > 0;
+    }
+
+    public static <T extends Floating<T>> boolean compareSignalingtGreaterThan(T a, T b, Environment env) {
+        if (a.isNaN() || b.isNaN()) {
+            env.flags.add(Flags.invalid);
+        }
+        return compareQuietGreaterThan(a, b, env);
+    }
+
+    public static <T extends Floating<T>> boolean compareQuietGreaterThanEqual(T a, T b, Environment env) {
+        if (a.isSignalling() || b.isSignalling()) {
+            env.flags.add(Flags.invalid);
+        }
+        if (a.isNaN() || b.isNaN()) {
+            return false;
+        }
+        return a.toExactFloat().compareTo(b.toExactFloat()) >= 0;
+    }
+
+    public static <T extends Floating<T>> boolean compareSignalingGreaterThanEqual(T a, T b, Environment env) {
+        if (a.isNaN() || b.isNaN()) {
+            env.flags.add(Flags.invalid);
+        }
+        return compareQuietGreaterThanEqual(a, b, env);
+    }
+
+    public static <T extends Floating<T>> boolean compareQuietUnordered(T a, T b, Environment env) {
+        if (a.isSignalling() || b.isSignalling()) {
+            env.flags.add(Flags.invalid);
+        }
+        return a.isNaN() || b.isNaN();
+    }
 }
