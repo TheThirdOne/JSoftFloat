@@ -2,8 +2,8 @@ import jsoftfloat.Environment;
 import jsoftfloat.Flags;
 import jsoftfloat.operations.Arithmetic;
 import jsoftfloat.operations.ArithmeticF32;
-import org.junit.jupiter.api.Test;
 import jsoftfloat.types.Float32;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -38,14 +38,14 @@ public class ComprehensiveTesting {
 
     @Test
     void compareToFLoatSqrt() {
-        for (int i = Integer.MAX_VALUE/4*3; i < Integer.MAX_VALUE; i++) {
+        for (int i = Integer.MAX_VALUE / 4 * 3; i < Integer.MAX_VALUE; i++) {
             Float32 f = new Float32(i);
             float F = Float.intBitsToFloat(i);
             if (f.isZero() || f.isNaN()) continue;
-            float s = (float)Math.sqrt(F);
+            float s = (float) Math.sqrt(F);
 
             int rawBits = Float.floatToRawIntBits(s);
-            Float32 out = Arithmetic.squareRoot(f,new Environment());
+            Float32 out = Arithmetic.squareRoot(f, new Environment());
             assertEquals(out.bits, rawBits);
         }
     }
@@ -56,8 +56,8 @@ public class ComprehensiveTesting {
             int aBits = ThreadLocalRandom.current().nextInt();
             Float32 a = new Float32(aBits);
             Float aF = Float.intBitsToFloat(aBits);
-            if (a.isNaN())continue;
-            for (int i = 0; i < Integer.MAX_VALUE/64; i++) {
+            if (a.isNaN()) continue;
+            for (int i = 0; i < Integer.MAX_VALUE / 64; i++) {
                 int bBits = ThreadLocalRandom.current().nextInt();
                 Float32 b = new Float32(bBits);
                 if (b.isNaN()) continue;
@@ -70,14 +70,15 @@ public class ComprehensiveTesting {
             }
         }
     }
+
     @Test
     void compareToFloatMult() {
         for (int j = 0; j < 64; j++) {
             int aBits = ThreadLocalRandom.current().nextInt();
             Float32 a = new Float32(aBits);
             Float aF = Float.intBitsToFloat(aBits);
-            if (a.isNaN())continue;
-            for (int i = 0; i < Integer.MAX_VALUE/64; i++) {
+            if (a.isNaN()) continue;
+            for (int i = 0; i < Integer.MAX_VALUE / 64; i++) {
                 int bBits = ThreadLocalRandom.current().nextInt();
                 Float32 b = new Float32(bBits);
                 if (b.isNaN()) continue;
@@ -90,13 +91,14 @@ public class ComprehensiveTesting {
             }
         }
     }
+
     @Test
     void CommutativeityOfAdd() {
         for (int j = 0; j < 64; j++) {
             int aBits = ThreadLocalRandom.current().nextInt();
             Float32 a = new Float32(aBits);
-            if (a.isNaN())continue;
-            for (int i = 0; i < Integer.MAX_VALUE/256; i++) {
+            if (a.isNaN()) continue;
+            for (int i = 0; i < Integer.MAX_VALUE / 256; i++) {
                 int bBits = ThreadLocalRandom.current().nextInt();
                 Float32 b = new Float32(bBits);
                 if (b.isNaN()) continue;
@@ -107,13 +109,14 @@ public class ComprehensiveTesting {
             }
         }
     }
+
     @Test
     void CommutativeityOfMult() {
         for (int j = 0; j < 64; j++) {
             int aBits = ThreadLocalRandom.current().nextInt();
             Float32 a = new Float32(aBits);
-            if (a.isNaN())continue;
-            for (int i = 0; i < Integer.MAX_VALUE/256; i++) {
+            if (a.isNaN()) continue;
+            for (int i = 0; i < Integer.MAX_VALUE / 256; i++) {
                 int bBits = ThreadLocalRandom.current().nextInt();
                 Float32 b = new Float32(bBits);
                 if (b.isNaN()) continue;

@@ -1,9 +1,9 @@
 package jsoftfloat.operations;
 
-import jsoftfloat.internal.ExactFloat;
 import jsoftfloat.Environment;
 import jsoftfloat.Flags;
 import jsoftfloat.RoundingMode;
+import jsoftfloat.internal.ExactFloat;
 import jsoftfloat.types.Floating;
 
 /**

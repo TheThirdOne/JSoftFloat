@@ -1,9 +1,9 @@
 package jsoftfloat.types;
 
-import jsoftfloat.internal.ExactFloat;
 import jsoftfloat.Environment;
 import jsoftfloat.Flags;
 import jsoftfloat.RoundingMode;
+import jsoftfloat.internal.ExactFloat;
 
 import java.math.BigInteger;
 
@@ -86,8 +86,8 @@ public class Float32 extends Floating<Float32> {
 
     // Section 6.2.1
     public boolean isSignalling() {
-        if (!isNaN())return false;
-        return (bits&0x400000) == 0;
+        if (!isNaN()) return false;
+        return (bits & 0x400000) == 0;
     }
 
     public boolean isCanonical() {
@@ -126,9 +126,9 @@ public class Float32 extends Floating<Float32> {
 
     // Some constants that allow fromExactFloat to be mostly copied
     private static final int sigbits = 23, expbits = 8,
-            maxexp  =   1 << (expbits-1),
-            minexp  = -(1 << (expbits-1)) + 1,
-            sigmask =  (1 << sigbits) - 1;
+            maxexp = 1 << (expbits - 1),
+            minexp = -(1 << (expbits - 1)) + 1,
+            sigmask = (1 << sigbits) - 1;
 
     @Override
     public Float32 fromExactFloat(ExactFloat ef, Environment env) {
@@ -139,11 +139,11 @@ public class Float32 extends Floating<Float32> {
         int normalizedExponent = ef.exponent + ef.significand.bitLength();
 
         // Used to calculate how to round at the end
-        Float32 awayZero,towardsZero;
+        Float32 awayZero, towardsZero;
         BigInteger roundedBits;
         int bitsToRound;
 
-        if (normalizedExponent <= minexp-sigbits) {
+        if (normalizedExponent <= minexp - sigbits) {
             // Section 7.5
             env.flags.add(Flags.underflow);
             env.flags.add(Flags.inexact);
@@ -151,23 +151,23 @@ public class Float32 extends Floating<Float32> {
         } else if (normalizedExponent <= minexp + 1) {
             // Subnormal
 
-            if (ef.exponent > minexp-sigbits) {
+            if (ef.exponent > minexp - sigbits) {
                 assert ef.significand.bitLength() <= sigbits : "Its actually normal";
-                return new Float32(ef.sign, minexp, ef.significand.shiftLeft(-(minexp-sigbits+1) + ef.exponent).intValueExact());
+                return new Float32(ef.sign, minexp, ef.significand.shiftLeft(-(minexp - sigbits + 1) + ef.exponent).intValueExact());
             }
 
             env.flags.add(Flags.inexact);
-            bitsToRound = (minexp-sigbits+1) - ef.exponent;
+            bitsToRound = (minexp - sigbits + 1) - ef.exponent;
             BigInteger mainBits = ef.significand.shiftRight(bitsToRound).shiftLeft(bitsToRound);
             roundedBits = ef.significand.subtract(mainBits);
 
-            towardsZero = new Float32(ef.sign,  minexp, ef.significand.shiftRight(bitsToRound).intValueExact());
+            towardsZero = new Float32(ef.sign, minexp, ef.significand.shiftRight(bitsToRound).intValueExact());
             BigInteger upBits = ef.significand.shiftRight(bitsToRound).add(BigInteger.valueOf(1));
             if (upBits.testBit(0) || upBits.bitLength() <= sigbits) {
                 assert upBits.bitLength() <= sigbits;
                 awayZero = new Float32(ef.sign, minexp, upBits.intValueExact());
             } else {
-                awayZero = new Float32(ef.sign, minexp+1, upBits.intValueExact() & sigmask);
+                awayZero = new Float32(ef.sign, minexp + 1, upBits.intValueExact() & sigmask);
             }
         } else if (normalizedExponent > maxexp) {
             // Section 7.4
@@ -175,13 +175,13 @@ public class Float32 extends Floating<Float32> {
             env.flags.add(Flags.inexact);
             switch (env.mode) {
                 case zero:
-                    return new Float32(ef.sign, maxexp-1, -1); // Largest finite number
+                    return new Float32(ef.sign, maxexp - 1, -1); // Largest finite number
                 case min:
                 case max:
                     if (ef.sign != (env.mode == RoundingMode.max)) {
                         return ef.sign ? Float32.NegativeInfinity : Float32.Infinity;
                     } else {
-                        return new Float32(ef.sign, maxexp-1, -1); // Largest finite number
+                        return new Float32(ef.sign, maxexp - 1, -1); // Largest finite number
                     }
                 case away:
                 case even:
@@ -190,10 +190,10 @@ public class Float32 extends Floating<Float32> {
             assert false : "Not reachable";
             return ef.sign ? Float32.NegativeInfinity : Float32.Infinity;
         } else {
-            if (ef.significand.bitLength() <= (sigbits+1)) {
+            if (ef.significand.bitLength() <= (sigbits + 1)) {
                 // No rounding needed
                 assert ef.exponent + ef.significand.bitLength() - 1 > minexp : "Its actually subnormal";
-                Float32 a = new Float32(ef.sign, ef.exponent + ef.significand.bitLength() - 1, ef.significand.shiftLeft((sigbits+1) - ef.significand.bitLength()).intValueExact() & sigmask);
+                Float32 a = new Float32(ef.sign, ef.exponent + ef.significand.bitLength() - 1, ef.significand.shiftLeft((sigbits + 1) - ef.significand.bitLength()).intValueExact() & sigmask);
 
                 return a;
             }
@@ -205,10 +205,10 @@ public class Float32 extends Floating<Float32> {
             BigInteger upBits = ef.significand.shiftRight(bitsToRound).add(BigInteger.valueOf(1));
 
             towardsZero = new Float32(ef.sign, ef.exponent + sigbits + bitsToRound, ef.significand.shiftRight(bitsToRound).intValueExact() & sigmask);
-            if (upBits.testBit(0) || upBits.bitLength() <= sigbits+1) {
+            if (upBits.testBit(0) || upBits.bitLength() <= sigbits + 1) {
                 awayZero = new Float32(ef.sign, ef.exponent + sigbits + bitsToRound, upBits.intValueExact() & sigmask);
             } else {
-                awayZero = new Float32(ef.sign, ef.exponent + (sigbits+1) + bitsToRound, upBits.shiftRight(1).intValueExact() & sigmask);
+                awayZero = new Float32(ef.sign, ef.exponent + (sigbits + 1) + bitsToRound, upBits.shiftRight(1).intValueExact() & sigmask);
             }
 
         }

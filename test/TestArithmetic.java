@@ -3,8 +3,8 @@ import jsoftfloat.Flags;
 import jsoftfloat.RoundingMode;
 import jsoftfloat.operations.Arithmetic;
 import jsoftfloat.operations.Conversions;
-import org.junit.jupiter.api.Test;
 import jsoftfloat.types.Float32;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -37,7 +37,7 @@ public class TestArithmetic {
         assertTrue(e.flags.isEmpty());
 
         // Some extra random tests which caught bugs in the F32 specialization
-        assertEquals(1964807572,Arithmetic.add(new Float32(1964807572), new Float32(949565186), new Environment()).bits);
+        assertEquals(1964807572, Arithmetic.add(new Float32(1964807572), new Float32(949565186), new Environment()).bits);
 
     }
 
@@ -79,14 +79,14 @@ public class TestArithmetic {
         assertEquals(Float32.NaN.bits, Arithmetic.multiplication(Float32.Infinity, Float32.Zero, new Environment()).bits);
 
 
-        assertEquals(0,Arithmetic.multiplication(new Float32(1), new Float32(1), new Environment()).bits);
-        assertEquals(Float32.Infinity.bits,Arithmetic.multiplication(new Float32(false,80,1), new Float32(false,80,1), new Environment()).bits);
+        assertEquals(0, Arithmetic.multiplication(new Float32(1), new Float32(1), new Environment()).bits);
+        assertEquals(Float32.Infinity.bits, Arithmetic.multiplication(new Float32(false, 80, 1), new Float32(false, 80, 1), new Environment()).bits);
 
         // Some extra random tests which caught bugs in the F32 specialization
-        assertEquals(-607464206,Arithmetic.multiplication(new Float32(2128754534), new Float32(-1671067297), new Environment()).bits);
-        assertEquals(-259016364,Arithmetic.multiplication(new Float32(-1218496645), new Float32(2024068370), new Environment()).bits);
-        assertEquals(-410506980,Arithmetic.multiplication(new Float32(-1304224058), new Float32(1957864688), new Environment()).bits);
-        assertEquals(1214,Arithmetic.multiplication(new Float32(174452931), new Float32(791213703), new Environment()).bits);
+        assertEquals(-607464206, Arithmetic.multiplication(new Float32(2128754534), new Float32(-1671067297), new Environment()).bits);
+        assertEquals(-259016364, Arithmetic.multiplication(new Float32(-1218496645), new Float32(2024068370), new Environment()).bits);
+        assertEquals(-410506980, Arithmetic.multiplication(new Float32(-1304224058), new Float32(1957864688), new Environment()).bits);
+        assertEquals(1214, Arithmetic.multiplication(new Float32(174452931), new Float32(791213703), new Environment()).bits);
     }
 
     private int multHelper(int a, int b) {
@@ -147,13 +147,13 @@ public class TestArithmetic {
 
     private int intDivHelper(int a, int b) {
         Environment env = new Environment();
-        int out = Conversions.convertToIntegral(divHelper(a,b,env),env);
+        int out = Conversions.convertToIntegral(divHelper(a, b, env), env);
         assertFalse(env.flags.contains(Flags.inexact));
         return out;
     }
 
     private Float32 divHelper(int a, int b, Environment e) {
-        return Arithmetic.division(Float32.fromInteger(a), Float32.fromInteger(b),e);
+        return Arithmetic.division(Float32.fromInteger(a), Float32.fromInteger(b), e);
     }
 
     private boolean inexactDivision(int a, int b) {
@@ -174,7 +174,7 @@ public class TestArithmetic {
 
     private int intSqrtHelper(int a) {
         Environment env = new Environment();
-        int out = Conversions.convertToIntegral(sqrtHelper(a,env),env);
+        int out = Conversions.convertToIntegral(sqrtHelper(a, env), env);
         assertFalse(env.flags.contains(Flags.inexact));
         return out;
     }

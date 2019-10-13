@@ -1,11 +1,10 @@
-
-import jsoftfloat.internal.ExactFloat;
 import jsoftfloat.Environment;
 import jsoftfloat.Flags;
 import jsoftfloat.RoundingMode;
+import jsoftfloat.internal.ExactFloat;
 import jsoftfloat.operations.Conversions;
-import org.junit.jupiter.api.Test;
 import jsoftfloat.types.Float32;
+import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
 
