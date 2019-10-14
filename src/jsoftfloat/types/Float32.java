@@ -14,7 +14,7 @@ public class Float32 extends Floating<Float32> {
     // TODO: make a more abstract binary float class
     public static final Float32 Zero = new Float32(0),
             NegativeZero = new Float32(0x80000000),
-            NaN = new Float32(0x7F800001),
+            NaN = new Float32(0x7FC00000),
             Infinity = new Float32(0x7F800000),
             NegativeInfinity = new Float32(0xFF800000);
 
