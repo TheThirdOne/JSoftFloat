@@ -25,9 +25,9 @@ public class TestConversions {
 
     @Test
     public void IntegerfromFloat32() {
-        assertEquals(0, Conversions.convertToIntegral(Float32.Zero, new Environment()));
-        assertEquals(1, Conversions.convertToIntegral(Float32.fromInteger(1), new Environment()));
-        assertEquals(-1, Conversions.convertToIntegral(Float32.fromInteger(-1), new Environment()));
+        assertEquals(0, Conversions.convertToInt(Float32.Zero, new Environment(),true));
+        assertEquals(1, Conversions.convertToInt(Float32.fromInteger(1), new Environment(),true));
+        assertEquals(-1, Conversions.convertToInt(Float32.fromInteger(-1), new Environment(),true));
     }
 
     @Test

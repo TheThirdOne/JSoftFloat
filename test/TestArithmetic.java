@@ -43,7 +43,7 @@ public class TestArithmetic {
 
     private int addHelper(int a, int b) {
         Environment env = new Environment();
-        int out = Conversions.convertToIntegral(Arithmetic.add(Float32.fromInteger(a), Float32.fromInteger(b), env), env);
+        int out = Conversions.convertToInt(Arithmetic.add(Float32.fromInteger(a), Float32.fromInteger(b), env), env);
         assertFalse(env.flags.contains(Flags.inexact));
         return out;
     }
@@ -63,7 +63,7 @@ public class TestArithmetic {
     }
 
     private int subHelper(int a, int b) {
-        return Conversions.convertToIntegral(Arithmetic.subtraction(Float32.fromInteger(a), Float32.fromInteger(b), new Environment()), new Environment());
+        return Conversions.convertToInt(Arithmetic.subtraction(Float32.fromInteger(a), Float32.fromInteger(b), new Environment()), new Environment());
     }
 
     @Test
@@ -91,7 +91,7 @@ public class TestArithmetic {
 
     private int multHelper(int a, int b) {
         Environment env = new Environment();
-        int out = Conversions.convertToIntegral(Arithmetic.multiplication(Float32.fromInteger(a), Float32.fromInteger(b), env), env);
+        int out = Conversions.convertToInt(Arithmetic.multiplication(Float32.fromInteger(a), Float32.fromInteger(b), env), env);
         assertFalse(env.flags.contains(Flags.inexact));
         return out;
     }
@@ -107,7 +107,7 @@ public class TestArithmetic {
         assertEquals(3, intDivHelper(9, 3));
 
         Environment e = new Environment();
-        assertEquals(1, Conversions.convertToIntegral(Arithmetic.multiplication(divHelper(1, 2, e),
+        assertEquals(1, Conversions.convertToInt(Arithmetic.multiplication(divHelper(1, 2, e),
                 Float32.fromInteger(2), new Environment()), new Environment()));
 
         assertEquals(0x3F000000, divHelper(1, 2, e).bits);
@@ -147,7 +147,7 @@ public class TestArithmetic {
 
     private int intDivHelper(int a, int b) {
         Environment env = new Environment();
-        int out = Conversions.convertToIntegral(divHelper(a, b, env), env);
+        int out = Conversions.convertToInt(divHelper(a, b, env), env);
         assertFalse(env.flags.contains(Flags.inexact));
         return out;
     }
@@ -174,7 +174,7 @@ public class TestArithmetic {
 
     private int intSqrtHelper(int a) {
         Environment env = new Environment();
-        int out = Conversions.convertToIntegral(sqrtHelper(a, env), env);
+        int out = Conversions.convertToInt(sqrtHelper(a, env), env);
         assertFalse(env.flags.contains(Flags.inexact));
         return out;
     }

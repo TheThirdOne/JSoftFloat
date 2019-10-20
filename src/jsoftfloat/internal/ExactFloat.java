@@ -2,6 +2,7 @@ package jsoftfloat.internal;
 
 
 import jsoftfloat.Environment;
+import jsoftfloat.Flags;
 import jsoftfloat.RoundingMode;
 
 import java.math.BigInteger;
@@ -24,6 +25,16 @@ public class ExactFloat implements Comparable<ExactFloat> {
         this.sign = sign;
         exponent = exp;
         significand = sig;
+    }
+    public ExactFloat(BigInteger i) {
+        if(i.compareTo(BigInteger.ZERO) < 0){
+            sign = true;
+            i = i.negate();
+        } else {
+            sign = false;
+        }
+        exponent = 0;
+        significand = i;
     }
 
     public ExactFloat add(ExactFloat other) {
@@ -206,16 +217,15 @@ public class ExactFloat implements Comparable<ExactFloat> {
         }
     }
 
-    public int toIntegral(Environment env) {
-        if (isZero()) return 0;
+    public BigInteger toIntegral(Environment env) {
+        if (isZero()) return BigInteger.ZERO;
 
         ExactFloat f = roundToIntegral(env).normalize();
-
-        assert f.exponent >= 0 : "There can't be any fractions at this point";
-        if (f.significand.bitLength() + f.exponent > 31) {
-            return f.sign ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+        if(f.compareTo(this) != 0){
+            env.flags.add(Flags.inexact);
         }
-        return (sign ? -1 : 1) * f.significand.shiftLeft(f.exponent).intValueExact();
+        assert f.exponent >= 0 : "There can't be any fractions at this point";
+        return f.significand.shiftLeft(f.exponent).multiply(BigInteger.valueOf(sign ? -1 : 1));
     }
 
     @Override
