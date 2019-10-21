@@ -1,7 +1,6 @@
 import jsoftfloat.Environment;
 import jsoftfloat.Flags;
 import jsoftfloat.operations.Arithmetic;
-import jsoftfloat.operations.ArithmeticF32;
 import jsoftfloat.types.Float32;
 import org.junit.jupiter.api.Test;
 
@@ -62,7 +61,7 @@ public class ComprehensiveTesting {
                 Float32 b = new Float32(bBits);
                 if (b.isNaN()) continue;
                 Environment e = new Environment();
-                Float32 c = ArithmeticF32.add(a, b, e);
+                Float32 c = Arithmetic.add(a, b, e);
                 Float bF = Float.intBitsToFloat(bBits);
                 Float cF = aF + bF;
                 int rawBits = Float.floatToRawIntBits(cF);
