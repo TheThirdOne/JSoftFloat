@@ -117,7 +117,13 @@ public class ExactFloat implements Comparable<ExactFloat> {
             if (divisor.equals(BigInteger.ZERO)) {
                 break;
             }
+        }
 
+        // Always round up so exact results are distinguished from rounded ones.
+        if(outbits.bitLength() >= accuracy){
+            outbits = outbits.shiftLeft(1);
+            outbits = outbits.add(BigInteger.ONE);
+            count++;
         }
         return new ExactFloat(a.sign != b.sign, a.exponent - b.exponent - count - expChange + 1, outbits);
     }
