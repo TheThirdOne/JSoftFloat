@@ -6,6 +6,30 @@ import jsoftfloat.types.Floating;
 
 public class Comparisons {
 
+    private static <T extends Floating<T>> int compareNoNAN(T a, T b) {
+        if(a.isZero()){
+            if(b.isZero()){
+                return 0;
+            }else{
+                return b.isSignMinus()?1:-1;
+            }
+        }
+        if(b.isZero()){
+            return a.isSignMinus()?-1:1;
+        }
+        if(a.isInfinite()){
+            if(b.isInfinite() && a.isSignMinus() == b.isSignMinus()){
+                return 0;
+            }else{
+                return a.isSignMinus()?1:-1;
+            }
+        }
+        if(b.isInfinite()){
+            return b.isSignMinus()?1:-1;
+        }
+        return a.toExactFloat().compareTo(b.toExactFloat());
+    }
+    
     private static <T extends Floating<T>> T nonNaNmin(T a, T b) {
         // If signs are different it is easy
         // Also explicitly handles -0 vs +0
@@ -20,7 +44,7 @@ public class Comparisons {
                 return b;
             }
         }
-        if (a.toExactFloat().compareTo(b.toExactFloat()) <= 0) {
+        if (compareNoNAN(a,b) <= 0) {
             return a;
         } else {
             return b;
@@ -109,7 +133,7 @@ public class Comparisons {
         if (a.isNaN() || b.isNaN()) {
             return false;
         }
-        return a.toExactFloat().compareTo(b.toExactFloat()) == 0;
+        return compareNoNAN(a,b) == 0;
     }
 
     public static <T extends Floating<T>> boolean equalSignaling(T a, T b, Environment env) {
@@ -126,7 +150,7 @@ public class Comparisons {
         if (a.isNaN() || b.isNaN()) {
             return false;
         }
-        return a.toExactFloat().compareTo(b.toExactFloat()) < 0;
+        return compareNoNAN(a,b) < 0;
     }
 
     public static <T extends Floating<T>> boolean compareSignalingtLessThan(T a, T b, Environment env) {
@@ -143,7 +167,7 @@ public class Comparisons {
         if (a.isNaN() || b.isNaN()) {
             return false;
         }
-        return a.toExactFloat().compareTo(b.toExactFloat()) <= 0;
+        return compareNoNAN(a,b) <= 0;
     }
 
     public static <T extends Floating<T>> boolean compareSignalingLessThanEqual(T a, T b, Environment env) {
@@ -160,7 +184,7 @@ public class Comparisons {
         if (a.isNaN() || b.isNaN()) {
             return false;
         }
-        return a.toExactFloat().compareTo(b.toExactFloat()) > 0;
+        return compareNoNAN(a,b) > 0;
     }
 
     public static <T extends Floating<T>> boolean compareSignalingtGreaterThan(T a, T b, Environment env) {
@@ -177,7 +201,7 @@ public class Comparisons {
         if (a.isNaN() || b.isNaN()) {
             return false;
         }
-        return a.toExactFloat().compareTo(b.toExactFloat()) >= 0;
+        return compareNoNAN(a,b) >= 0;
     }
 
     public static <T extends Floating<T>> boolean compareSignalingGreaterThanEqual(T a, T b, Environment env) {
