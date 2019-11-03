@@ -1,13 +1,14 @@
 import jsoftfloat.Environment;
 import jsoftfloat.Flags;
+import jsoftfloat.RoundingMode;
 import jsoftfloat.operations.Arithmetic;
+import jsoftfloat.operations.Comparisons;
 import jsoftfloat.types.Float32;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ComprehensiveTesting {
     @Test
@@ -69,6 +70,23 @@ public class ComprehensiveTesting {
             }
         }
     }
+
+    @Test
+    void sqrtAndRounding() {
+        for (int j = 0; j < 1000000000; j++) {
+            int aBits = ThreadLocalRandom.current().nextInt();
+            Float32 a = new Float32(aBits);
+            Float aF = Float.intBitsToFloat(aBits);
+            if (a.isNaN() || a.isSignMinus()) continue;
+            Environment e = new Environment();
+            e.mode = RoundingMode.max;
+            Float32 b = Arithmetic.multiplication(a, a, e);
+            Float32 c = Arithmetic.squareRoot(b,e);
+            assertFalse(e.flags.contains(Flags.invalid));
+            assertTrue(Comparisons.compareQuietLessThanEqual(a,c,e));
+        }
+    }
+
 
     @Test
     void compareToFloatMult() {
