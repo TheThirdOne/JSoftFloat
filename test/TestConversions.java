@@ -39,6 +39,26 @@ public class TestConversions {
         assertEquals(0x00000002, Float32.fromExact(small, new Environment(RoundingMode.max)).bits);
         assertEquals(0x00000002, Float32.fromExact(small, new Environment(RoundingMode.away)).bits);
 
+        // Test below smallest subnormal
+        small = new ExactFloat(false, -150, BigInteger.ONE); // Perfectly in the middle
+        assertEquals(0x00000000, Float32.fromExact(small, new Environment(RoundingMode.zero)).bits);
+        assertEquals(0x00000000, Float32.fromExact(small, new Environment(RoundingMode.min)).bits);
+        assertEquals(0x00000000, Float32.fromExact(small, new Environment(RoundingMode.even)).bits);
+        assertEquals(0x00000001, Float32.fromExact(small, new Environment(RoundingMode.max)).bits);
+        assertEquals(0x00000001, Float32.fromExact(small, new Environment(RoundingMode.away)).bits);
+        small = new ExactFloat(false, -151, BigInteger.valueOf(3)); // Biased away from 0
+        assertEquals(0x00000000, Float32.fromExact(small, new Environment(RoundingMode.zero)).bits);
+        assertEquals(0x00000000, Float32.fromExact(small, new Environment(RoundingMode.min)).bits);
+        assertEquals(0x00000001, Float32.fromExact(small, new Environment(RoundingMode.even)).bits);
+        assertEquals(0x00000001, Float32.fromExact(small, new Environment(RoundingMode.max)).bits);
+        assertEquals(0x00000001, Float32.fromExact(small, new Environment(RoundingMode.away)).bits);
+        small = new ExactFloat(false, -151, BigInteger.ONE); // Biased towards 0
+        assertEquals(0x00000000, Float32.fromExact(small, new Environment(RoundingMode.zero)).bits);
+        assertEquals(0x00000000, Float32.fromExact(small, new Environment(RoundingMode.min)).bits);
+        assertEquals(0x00000000, Float32.fromExact(small, new Environment(RoundingMode.even)).bits);
+        assertEquals(0x00000001, Float32.fromExact(small, new Environment(RoundingMode.max)).bits);
+        assertEquals(0x00000000, Float32.fromExact(small, new Environment(RoundingMode.away)).bits);
+
         small = new ExactFloat(false, -150, BigInteger.valueOf(5));
         assertEquals(0x00000002, Float32.fromExact(small, new Environment(RoundingMode.even)).bits);
 

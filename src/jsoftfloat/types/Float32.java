@@ -143,12 +143,7 @@ public class Float32 extends Floating<Float32> {
         BigInteger roundedBits;
         int bitsToRound;
 
-        if (normalizedExponent <= minexp - sigbits) {
-            // Section 7.5
-            env.flags.add(Flags.underflow);
-            env.flags.add(Flags.inexact);
-            return ef.sign ? Float32.NegativeZero : Float32.Zero;
-        } else if (normalizedExponent <= minexp + 1) {
+        if (normalizedExponent <= minexp + 1) {
             // Subnormal
 
             if (ef.exponent > minexp - sigbits) {
@@ -157,6 +152,7 @@ public class Float32 extends Floating<Float32> {
             }
 
             env.flags.add(Flags.inexact);
+            env.flags.add(Flags.underflow); // Section 7.5
             bitsToRound = (minexp - sigbits + 1) - ef.exponent;
             BigInteger mainBits = ef.significand.shiftRight(bitsToRound).shiftLeft(bitsToRound);
             roundedBits = ef.significand.subtract(mainBits);

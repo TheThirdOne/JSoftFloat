@@ -145,12 +145,7 @@ public class Float64 extends Floating<Float64> {
         BigInteger roundedBits;
         int bitsToRound;
 
-        if (normalizedExponent <= minexp - sigbits) {
-            // Section 7.5
-            env.flags.add(Flags.underflow);
-            env.flags.add(Flags.inexact);
-            return ef.sign ? Float64.NegativeZero : Float64.Zero;
-        } else if (normalizedExponent <= minexp + 1) {
+        if (normalizedExponent <= minexp + 1) {
             // Subnormal
 
             if (ef.exponent > minexp - sigbits) {
@@ -159,6 +154,7 @@ public class Float64 extends Floating<Float64> {
             }
 
             env.flags.add(Flags.inexact);
+            env.flags.add(Flags.underflow); // Section 7.5
             bitsToRound = (minexp - sigbits + 1) - ef.exponent;
             BigInteger mainBits = ef.significand.shiftRight(bitsToRound).shiftLeft(bitsToRound);
             roundedBits = ef.significand.subtract(mainBits);
