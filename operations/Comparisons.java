@@ -153,7 +153,7 @@ public class Comparisons {
         return compareNoNAN(a,b) < 0;
     }
 
-    public static <T extends Floating<T>> boolean compareSignalingtLessThan(T a, T b, Environment env) {
+    public static <T extends Floating<T>> boolean compareSignalingLessThan(T a, T b, Environment env) {
         if (a.isNaN() || b.isNaN()) {
             env.flags.add(Flags.invalid);
         }
@@ -187,7 +187,7 @@ public class Comparisons {
         return compareNoNAN(a,b) > 0;
     }
 
-    public static <T extends Floating<T>> boolean compareSignalingtGreaterThan(T a, T b, Environment env) {
+    public static <T extends Floating<T>> boolean compareSignalingGreaterThan(T a, T b, Environment env) {
         if (a.isNaN() || b.isNaN()) {
             env.flags.add(Flags.invalid);
         }
