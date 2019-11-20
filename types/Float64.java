@@ -70,7 +70,7 @@ public class Float64 extends Floating<Float64> {
     }
 
     public boolean isInfinite() {
-        return exponent() == 1024 && (bits & 0x1FFFFFFFFFFFFFL) == 0;
+        return exponent() == 1024 && (bits & sigmask) == 0;
     }
 
     public boolean isNormal() {
