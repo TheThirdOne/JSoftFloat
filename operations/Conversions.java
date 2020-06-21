@@ -72,6 +72,18 @@ public class Conversions {
         return (int)(rounded.longValueExact()&0xFFFFFFFFL);
     }
 
+    public static <T extends Floating<T>> long convertToLong(T f, Environment env, boolean quiet) {
+        BigInteger rounded = convertToIntegral(f,BigInteger.valueOf(Long.MAX_VALUE),BigInteger.valueOf(Long.MIN_VALUE),env,quiet);
+        return rounded.longValueExact();
+    }
+
+
+    public static <T extends Floating<T>> long convertToUnsignedLong(T f, Environment env, boolean quiet) {
+        BigInteger rounded = convertToIntegral(f,BigInteger.valueOf(-1).add(BigInteger.ONE.shiftLeft(64)),BigInteger.ZERO,env,quiet);
+        return rounded.longValue();
+    }
+
+
     public static <T extends Floating<T>> T convertFromInt(BigInteger i, Environment env, T helper) {
         if(i.equals(BigInteger.ZERO)){
             return helper.Zero();
