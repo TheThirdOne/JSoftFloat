@@ -3,9 +3,12 @@ import jsoftfloat.Flags;
 import jsoftfloat.RoundingMode;
 import jsoftfloat.operations.Arithmetic;
 import jsoftfloat.operations.Comparisons;
+import jsoftfloat.operations.Conversions;
 import jsoftfloat.types.Float32;
+import jsoftfloat.types.Float64;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigInteger;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -144,4 +147,17 @@ public class ComprehensiveTesting {
             }
         }
     }
+
+    public int roundTripInt64(int a){
+        Float64 tmp = Conversions.convertFromInt(BigInteger.valueOf(a),new Environment(),new Float64(0));
+        return Conversions.convertToInt(tmp,new Environment(),true);
+    }
+    @Test
+    void IntConversion64() {
+        for (int j = Integer.MIN_VALUE; j < Integer.MAX_VALUE; j++) {
+            assertEquals(j,roundTripInt64(j));
+        }
+    }
+
+
 }

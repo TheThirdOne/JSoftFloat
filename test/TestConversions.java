@@ -4,12 +4,13 @@ import jsoftfloat.RoundingMode;
 import jsoftfloat.internal.ExactFloat;
 import jsoftfloat.operations.Conversions;
 import jsoftfloat.types.Float32;
+import jsoftfloat.types.Float64;
 import org.junit.jupiter.api.Test;
+import sun.java2d.SunGraphics2D;
 
 import java.math.BigInteger;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestConversions {
     @Test
@@ -28,6 +29,59 @@ public class TestConversions {
         assertEquals(0, Conversions.convertToInt(Float32.Zero, new Environment(),true));
         assertEquals(1, Conversions.convertToInt(Float32.fromInteger(1), new Environment(),true));
         assertEquals(-1, Conversions.convertToInt(Float32.fromInteger(-1), new Environment(),true));
+
+
+        for(int i = 1; i != 0; i <<= 1){
+            assertEquals(i, roundTripInt(i));
+            assertEquals(i, roundTripUnsignedInt(i));
+        }
+        for(long i = 1; i != 0; i <<= 1){
+            assertEquals(i, roundTripLong(i));
+            assertEquals(i, roundTripUnsignedLong(i));
+        }
+    }
+
+    public int roundTripInt(int a){
+        Float32 tmp = Conversions.convertFromInt(BigInteger.valueOf(a),new Environment(),new Float32(0));
+        return Conversions.convertToInt(tmp,new Environment(),true);
+    }
+    public int roundTripInt64(int a){
+        Float64 tmp = Conversions.convertFromInt(BigInteger.valueOf(a),new Environment(),new Float64(0));
+        return Conversions.convertToInt(tmp,new Environment(),true);
+    }
+    public int roundTripUnsignedInt(int a){
+        BigInteger unsigned = BigInteger.valueOf(a);
+        if(a < 0){
+            unsigned = unsigned.add(BigInteger.ONE.shiftLeft(32));
+        }
+        Float32 tmp = Conversions.convertFromInt(unsigned,new Environment(),new Float32(0));
+        return Conversions.convertToUnsignedInt(tmp,new Environment(),true);
+    }
+    public long roundTripLong(long a){
+        Float32 tmp = Conversions.convertFromInt(BigInteger.valueOf(a),new Environment(),new Float32(0));
+        return Conversions.convertToLong(tmp,new Environment(),true);
+    }
+    public long roundTripUnsignedLong(long a){
+        BigInteger unsigned = BigInteger.valueOf(a);
+        if(a < 0){
+            unsigned = unsigned.add(BigInteger.ONE.shiftLeft(64));
+        }
+        Float32 tmp = Conversions.convertFromInt(unsigned,new Environment(),new Float32(0));
+        return Conversions.convertToUnsignedLong(tmp,new Environment(),true);
+    }
+
+
+    @Test
+    public void UnsignedConversions() {
+        assertEquals(0, Conversions.convertToInt(Float32.Zero, new Environment(),true));
+        assertEquals(1, Conversions.convertToInt(Float32.fromInteger(1), new Environment(),true));
+        assertEquals(-1, Conversions.convertToInt(Float32.fromInteger(-1), new Environment(),true));
+        Environment env = new Environment();
+        Float32 tmp = Conversions.convertFromInt(BigInteger.valueOf(0x80000000L),env,new Float32(0));
+        int signed = Conversions.convertToInt(tmp,env,true), unsigned = Conversions.convertToUnsignedInt(tmp,env,true);
+        assertNotEquals(signed,unsigned);
+        assertEquals(Integer.MAX_VALUE,signed);
+        assertEquals(0x80000000,unsigned);
     }
 
     @Test
