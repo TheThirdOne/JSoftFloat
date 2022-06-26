@@ -140,11 +140,6 @@ public class Arithmetic {
 
         ExactFloat multiplication = a.toExactFloat().multiply(b.toExactFloat());
 
-        // TODO: add check for +inf and -ing
-        if (multiplication.isZero() || c.isZero()) {
-            // TODO: what is this doing?
-            return add(multiplication.sign == b.isSignMinus() ? a.Zero() : a.NegativeZero(), c, env);
-        }
         return a.fromExactFloat(multiplication.add(c.toExactFloat()), env);
     }
 
